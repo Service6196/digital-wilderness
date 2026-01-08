@@ -1,0 +1,244 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import JournalItem from '../components/JournalItem.astro';
+import { getCollection } from 'astro:content';
+
+// 从 Content Collections 获取所有文章
+const allPosts = await getCollection('posts', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+// 按发布日期倒序排列
+const sortedPosts = allPosts.sort((a, b) => 
+    b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+// 获取所有分类
+const categories = [...new Set(sortedPosts.map(post => post.data.category).filter(Boolean))];
+
+// 定义 span 模式（循环使用）
+const spanPatterns = [
+    "col-span-12 md:col-span-8",
+    "col-span-12 md:col-span-4", 
+    "col-span-12 md:col-span-4",
+    "col-span-12 md:col-span-8",
+    "col-span-12"
+];
+---
+
+<BaseLayout title="Journal | The Frame">
+    <Header />
+    
+    <main class="pt-[160px] px-[4vw]">
+        <!-- Page Header -->
+        <div class="mb-24">
+            <h1 class="text-[clamp(3rem,6vw,5rem)] leading-none font-bold tracking-tighter mb-12">
+                碎碎念 <span class="text-xl md:text-3xl font-light opacity-40 ml-4 font-sans">/ JOURNAL</span>
+            </h1>
+            
+            <!-- 分类筛选 - 优化版 -->
+            <div class="flex flex-wrap items-center gap-2 md:gap-3 font-mono text-xs md:text-sm overflow-x-auto pb-2 -mb-2" id="category-filter">
+                <button 
+                    class="filter-btn active px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[var(--grid-line)] hover:border-[var(--text)] hover:text-[var(--text)] transition-all whitespace-nowrap" 
+                    data-category="all"
+                >
+                    全部 <span class="opacity-40 ml-1 text-xs">({sortedPosts.length})</span>
+                </button>
+                {categories.map(cat => {
+                    const count = sortedPosts.filter(p => p.data.category === cat).length;
+                    return (
+                        <button 
+                            class="filter-btn px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[var(--grid-line)] hover:border-[var(--text)] hover:text-[var(--text)] transition-all opacity-60 hover:opacity-100 whitespace-nowrap" 
+                            data-category={cat}
+                        >
+                            {cat} <span class="opacity-40 ml-1 text-xs">({count})</span>
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+
+        <!-- Grid -->
+        {sortedPosts.length > 0 ? (
+            <div class="bento-grid" id="posts-grid">
+                {sortedPosts.map((post, index) => (
+                    <div 
+                        class={`post-item ${spanPatterns[index % spanPatterns.length]}`} 
+                        data-category={post.data.category || '未分类'}
+                        data-reveal
+                    >
+                        <JournalItem 
+                            title={post.data.title}
+                            category={`${post.data.category || '未分类'} / ${String(index + 1).padStart(2, '0')}`}
+                            image={post.data.heroImage || `https://picsum.photos/seed/${post.slug}/1200/800`}
+                            href={`/journal/${post.slug}`}
+                            span="w-full"
+                        />
+                    </div>
+                ))}
+            </div>
+        ) : (
+            <div class="text-center py-24 opacity-60">
+                <p class="text-xl mb-4">还没有文章</p>
+                <p class="font-mono text-sm">
+                    访问 <a href="/keystatic" class="text-[var(--text)] underline">/keystatic</a> 添加你的第一篇文章
+                </p>
+            </div>
+        )}
+
+        <!-- 无结果提示 -->
+        <div id="no-results" class="hidden text-center py-24 opacity-60">
+            <p class="text-xl mb-4">该分类下暂无文章</p>
+            <button class="font-mono text-sm text-[var(--text)] underline show-all-btn">
+                显示全部
+            </button>
+        </div>
+    </main>
+
+    <Footer />
+</BaseLayout>
+
+<style>
+    .filter-btn.active {
+        background-color: var(--text);
+        border-color: var(--text);
+        color: var(--bg);
+        opacity: 1;
+    }
+    
+    .filter-btn.active:hover {
+        color: white;
+    }
+    
+    /* 文章网格容器 */
+    #posts-grid {
+        transition: opacity 0.2s ease;
+    }
+    
+    #posts-grid.filtering {
+        opacity: 0.3;
+    }
+    
+    .post-item {
+        transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    
+    .post-item.hidden {
+        display: none;
+    }
+    
+    .post-item.fade-out {
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
+    }
+</style>
+
+<script>
+    function initFilter() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const postItems = document.querySelectorAll('.post-item');
+        const noResults = document.getElementById('no-results');
+        const postsGrid = document.getElementById('posts-grid');
+        const showAllBtns = document.querySelectorAll('.show-all-btn');
+        
+        // 先获取所有分类
+        const categories = [...filterBtns]
+            .map(btn => btn.getAttribute('data-category'))
+            .filter(c => c && c !== 'all');
+
+        function filterPosts(category) {
+            // 先给整个网格添加过渡效果
+            postsGrid?.classList.add('filtering');
+            
+            // 等待淡出动画完成后再切换
+            setTimeout(() => {
+                let visibleCount = 0;
+
+                postItems.forEach((item) => {
+                    const itemCategory = item.getAttribute('data-category');
+                    const shouldShow = category === 'all' || itemCategory === category;
+
+                    if (shouldShow) {
+                        item.classList.remove('hidden', 'fade-out');
+                        visibleCount++;
+                    } else {
+                        item.classList.add('hidden', 'fade-out');
+                    }
+                });
+
+                // 显示/隐藏无结果提示
+                if (visibleCount === 0) {
+                    noResults?.classList.remove('hidden');
+                    postsGrid?.classList.add('hidden');
+                } else {
+                    noResults?.classList.add('hidden');
+                    postsGrid?.classList.remove('hidden');
+                }
+                
+                // 移除过渡效果，显示结果
+                requestAnimationFrame(() => {
+                    postsGrid?.classList.remove('filtering');
+                });
+            }, 150);
+
+            // 立即更新按钮状态（不需要等待动画）
+            filterBtns.forEach(btn => {
+                const btnCategory = btn.getAttribute('data-category');
+                if (btnCategory === category) {
+                    btn.classList.add('active');
+                    btn.classList.remove('opacity-60');
+                } else {
+                    btn.classList.remove('active');
+                    btn.classList.add('opacity-60');
+                }
+            });
+        }
+
+        // 移除旧的事件监听器（防止重复绑定）
+        filterBtns.forEach(btn => {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode?.replaceChild(newBtn, btn);
+        });
+
+        // 重新获取按钮并绑定事件
+        const newFilterBtns = document.querySelectorAll('.filter-btn');
+        newFilterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const category = btn.getAttribute('data-category') || 'all';
+                filterPosts(category);
+                
+                // 更新 URL hash
+                const newUrl = category === 'all' ? '/journal' : `/journal#${category}`;
+                window.history.replaceState(null, '', newUrl);
+            });
+        });
+
+        // 显示全部按钮
+        showAllBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                filterPosts('all');
+            });
+        });
+
+        // 从 URL hash 初始化
+        const hash = window.location.hash.slice(1);
+        if (hash && categories.includes(hash)) {
+            filterPosts(hash);
+        }
+    }
+
+    // 确保 DOM 加载完成后初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFilter);
+    } else {
+        initFilter();
+    }
+    
+    // Astro 页面切换时重新初始化
+    document.addEventListener('astro:page-load', initFilter);
+</script>

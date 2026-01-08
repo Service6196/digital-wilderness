@@ -1,0 +1,163 @@
+---
+import MusicPlayer from './MusicPlayer/index.astro';
+import MenuOverlay from './MenuOverlay.astro';
+---
+<!-- Mobile & Desktop: Full-width fixed header -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex h-[56px] md:h-[72px] items-center justify-between px-4 md:px-[4vw] bg-[var(--surface)]/80 backdrop-blur-xl border-b border-[var(--grid-line)] transition-all duration-300" data-astro-transition-persist="global-header">
+    <div class="font-[500] text-xs md:text-sm tracking-widest uppercase text-[var(--text)]"><a href="/">The Frame.</a></div>
+    
+    <!-- Desktop Navigation (Center) -->
+    <div class="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
+        <a href="/journal" class="text-sm font-medium text-[var(--text)] opacity-50 hover:opacity-100 transition-opacity">碎碎念</a>
+        <a href="/lab" class="text-sm font-medium text-[var(--text)] opacity-50 hover:opacity-100 transition-opacity">实验室</a>
+        <a href="/about" class="text-sm font-medium text-[var(--text)] opacity-50 hover:opacity-100 transition-opacity">关于</a>
+    </div>
+
+    <div class="flex items-center gap-2 md:gap-4 z-50">
+        <!-- Search Link -->
+        <a href="/search" class="btn-icon w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full hover:bg-[var(--grid-line)] transition-all text-[var(--text-secondary)] hover:text-[var(--text)]" aria-label="搜索">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </a>
+
+        <button id="menu-trigger" class="btn-icon w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--grid-line)] transition-all text-[var(--text-secondary)] hover:text-[var(--text)] md:hidden" aria-label="菜单">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+        <button 
+            id="theme-toggle" 
+            class="btn-icon w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full hover:bg-[var(--grid-line)] transition-all text-[var(--text-secondary)] hover:text-[var(--text)]" 
+            aria-label="切换主题"
+            title="切换亮色/暗色模式"
+        >
+            <svg id="sun-icon" class="w-4 h-4 md:w-5 md:h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <svg id="moon-icon" class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+        </button>
+    </div>
+</nav>
+
+<MenuOverlay />
+
+<script>
+    function initTheme() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const menuTrigger = document.getElementById('menu-trigger');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        const searchContainer = document.getElementById('search-container');
+        const searchTrigger = document.getElementById('search-trigger');
+        const searchBar = document.getElementById('search-bar');
+        const searchInput = searchBar?.querySelector('input');
+        const searchClose = document.getElementById('search-close');
+
+        // Search Logic
+        if (searchTrigger && searchBar && searchContainer && searchInput && searchClose) {
+            
+            const openSearch = () => {
+                searchContainer.classList.add('active');
+                searchTrigger.style.opacity = '0';
+                searchTrigger.style.pointerEvents = 'none';
+                
+                searchBar.style.width = '320px'; // Expanded width
+                searchBar.style.opacity = '1';
+                
+                setTimeout(() => searchInput.focus(), 100);
+            };
+
+            const closeSearch = () => {
+                searchContainer.classList.remove('active');
+                searchTrigger.style.opacity = '1';
+                searchTrigger.style.pointerEvents = 'auto';
+                
+                searchBar.style.width = '0';
+                searchBar.style.opacity = '0';
+                searchBar.blur();
+            };
+
+            searchTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openSearch();
+            });
+
+            searchClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeSearch();
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (searchContainer.classList.contains('active') && !searchContainer.contains(e.target as Node)) {
+                    closeSearch();
+                }
+            });
+
+            // Close on Esc
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && searchContainer.classList.contains('active')) {
+                    closeSearch();
+                }
+            });
+        }
+
+        // Menu Logic (Existing)
+        if (menuTrigger && menuOverlay) {
+            menuTrigger.addEventListener('click', () => {
+                menuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; 
+            });
+        }
+        
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        const html = document.documentElement;
+        
+        // 防止重复绑定事件（关键修复）
+        if (themeToggle?.hasAttribute('data-theme-initialized')) {
+            return;
+        }
+        themeToggle?.setAttribute('data-theme-initialized', 'true');
+        
+        // 获取存储的主题或系统偏好
+        const storedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 初始化主题
+        function applyTheme(isDark: boolean) {
+            if (isDark) {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                sunIcon?.classList.remove('hidden');
+                moonIcon?.classList.add('hidden');
+            } else {
+                html.classList.add('light');
+                html.classList.remove('dark');
+                sunIcon?.classList.add('hidden');
+                moonIcon?.classList.remove('hidden');
+            }
+        }
+        
+        // 根据存储或系统偏好设置初始主题
+        if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+            applyTheme(true);
+        } else {
+            applyTheme(false);
+        }
+        
+        // 切换主题
+        themeToggle?.addEventListener('click', () => {
+            const isDark = html.classList.contains('dark');
+            if (isDark) {
+                applyTheme(false);
+                localStorage.setItem('theme', 'light');
+            } else {
+                applyTheme(true);
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    }
+    
+    // 只在页面加载完成时执行一次
+    document.addEventListener('astro:page-load', initTheme);
+</script>
