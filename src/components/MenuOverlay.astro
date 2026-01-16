@@ -30,7 +30,7 @@
                     </p>
                     
                     <!-- Addable Avatar Row (Social/Connect) -->
-                    <div class="flex items-center gap -2">
+                    <div class="flex items-center gap-2">
                         <div class="flex -space-x-2 mr-3">
                             <div class="w-8 h-8 rounded-full border-2 border-[var(--bg)] bg-gray-300 overflow-hidden">
                                 <img src="https://picsum.photos/seed/user1/100/100" class="w-full h-full object-cover grayscale" />
@@ -49,17 +49,61 @@
                 </div>
 
                 <div>
-                    <h2 class="text-xs font-mono tracking-widest opacity-50 mb-6">导航 / NAVIGATION</h2>
-                    <ul class="nav-links space-y-4 text-2xl font-bold">
-                        <li><a href="/" class="hover:text-[var(--accent)] transition-colors">首页 <span class="text-xs opacity-30 font-normal ml-2">HOME</span></a></li>
-                        <li><a href="/journal" class="hover:text-[var(--accent)] transition-colors">日志 <span class="text-xs opacity-30 font-normal ml-2">JOURNAL</span></a></li>
-                        <li><a href="/lab" class="hover:text-[var(--accent)] transition-colors">实验室 <span class="text-xs opacity-30 font-normal ml-2">LAB</span></a></li>
-                        <li><a href="/about" class="hover:text-[var(--accent)] transition-colors">关于 <span class="text-xs opacity-30 font-normal ml-2">ABOUT</span></a></li>
+                    <div class="mb-6 border-l-2 border-[var(--accent)] pl-3">
+                        <h2 class="cn text-lg font-bold">导航</h2>
+                        <span class="en text-xs text-[var(--accent)] font-serif italic">Navigation</span>
+                    </div>
+                    <ul class="nav-links space-y-6">
+                        <li>
+                            <a href="/" class="flex flex-col group w-fit">
+                                <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">索引</span>
+                                <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Index</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/journal" class="flex flex-col group w-fit">
+                                <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">思考</span>
+                                <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Thinking</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/works" class="flex flex-col group w-fit">
+                                <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">作品</span>
+                                <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Works</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/signals" class="flex flex-col group w-fit">
+                                <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">信号</span>
+                                <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Signals</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/stack" class="flex flex-col group w-fit">
+                                <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">工具</span>
+                                <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Stack</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/now" class="flex flex-col group w-fit">
+                                <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">当下</span>
+                                <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Now</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/manual" class="flex flex-col group w-fit">
+                                <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">了解我</span>
+                                <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">About</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 
                 <div class="skills-section mt-12 md:mt-0">
-                    <h2 class="text-xs font-mono tracking-widest opacity-50 mb-6">技能栈 / SKILLS</h2>
+                    <div class="mb-6 border-l-2 border-[var(--accent)] pl-3">
+                        <h2 class="cn text-lg font-bold">技能栈</h2>
+                        <span class="en text-xs text-[var(--accent)] font-serif italic">Skills</span>
+                    </div>
                     <div class="space-y-4">
                         <div class="skill-item">
                             <div class="flex justify-between text-xs mb-1">
@@ -95,8 +139,7 @@
 
             <!-- Right Column: Philosophy & Content -->
             <div class="col-span-12 md:col-span-8 flex flex-col justify-center relative philosophy-section">
-                <div class="absolute top-0 right-0 text-[10rem] font-bold opacity-[0.03] leading-none pointer-events-none select-none">
-                    2025
+                <div class="absolute top-0 right-0 text-[10rem] font-bold opacity-[0.03] leading-none pointer-events-none select-none year-display">
                 </div>
 
                 <div class="philosophy-card p-8 border border-[var(--grid-line)] rounded-lg bg-[var(--bg)] relative overflow-hidden group">
@@ -282,6 +325,12 @@
 <script>
     const menu = document.getElementById('menu-overlay');
     const closeBtn = document.getElementById('menu-close');
+    const yearDisplay = document.querySelector('.year-display');
+    
+    // Set dynamic year
+    if (yearDisplay) {
+        yearDisplay.textContent = new Date().getFullYear().toString();
+    }
     
     // Logic handles by Header.astro mainly, but close button is here
     if (closeBtn && menu) {

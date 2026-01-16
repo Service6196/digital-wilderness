@@ -1,0 +1,77 @@
+---
+interface Props {
+    title: string;
+    author: string;
+    cover: string;
+    color?: string; // Dominant color for spine
+    progress?: number; // 0-100 for 'desk' view ribbon
+    view: 'desk' | 'face-out' | 'spine';
+    comment?: string; // For 'face-out' obi strip
+    href?: string;
+}
+
+const { title, author, cover, color = '#8C857B', progress = 0, view, comment, href } = Astro.props;
+
+// Calculate ribbon length based on progress (max height ~90%)
+const ribbonHeight = `${Math.max(10, Math.min(90, progress))}%`;
+
+// For spine view, determine text color based on background brightness (simple heuristic)
+// Assuming simple contrast needs
+const spineTextColor = '#FFFFFF'; 
+---
+
+{view === 'desk' && (
+    <a href={href} class="block group perspective-container">
+        <div class="book-desk w-[160px] h-[240px] bg-white relative overflow-hidden">
+            <img src={cover} alt={title} class="w-full h-full object-cover" />
+            
+            {/* Lighting Overlay */}
+            <div class="absolute inset-0 bg-gradient-to-r from-black/5 to-transparent pointer-events-none"></div>
+            
+            {/* Texture Overlay */}
+            <div class="absolute inset-0 opacity-20 bg-[url('/noise.png')] pointer-events-none mix-blend-multiply"></div>
+
+            {/* Reading Ribbon */}
+            <div class="book-ribbon" style={`height: ${ribbonHeight};`}></div>
+        </div>
+        <div class="mt-4 text-center max-w-[160px]">
+            <h4 class="font-serif font-bold text-sm leading-tight text-[var(--text)] group-hover:text-[var(--accent)] transition-colors">{title}</h4>
+            <p class="font-mono text-[10px] text-[var(--text-muted)] uppercase mt-1">{author}</p>
+        </div>
+    </a>
+)}
+
+{view === 'face-out' && (
+    <a href={href} class="block group relative w-full max-w-[220px]">
+        <div class="book-faceout aspect-[2/3] rounded-sm overflow-visible relative">
+            <img src={cover} alt={title} class="w-full h-full object-cover shadow-md rounded-sm" />
+            
+            {comment && (
+                <div class="book-obi">
+                    <span class="text-[var(--text)]">{comment}</span>
+                </div>
+            )}
+        </div>
+        <div class="mt-6 text-center">
+             <h4 class="font-serif font-bold text-lg leading-tight text-[var(--text)] group-hover:text-[var(--accent)] transition-colors">{title}</h4>
+             <div class="flex items-center justify-center gap-2 mt-2">
+                 <span class="px-2 py-0.5 border border-[var(--text-muted)] rounded text-[10px] font-mono uppercase text-[var(--text-muted)]">Must Read</span>
+             </div>
+        </div>
+    </a>
+)}
+
+{view === 'spine' && (
+    <a href={href} class="book-spine-item block group" title={`${title} by ${author}`}>
+        <div class="book-spine" style={`--spine-color: ${color}; --spine-text: ${spineTextColor};`}>
+            <span class="tracking-widest truncate max-h-[80%]">{title}</span>
+        </div>
+    </a>
+)}
+
+<style>
+    /* Scoped styles if needed, but relying on global bookshelf.css for shared systems */
+    .perspective-container {
+        perspective: 1000px;
+    }
+</style>

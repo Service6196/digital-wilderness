@@ -1,0 +1,10 @@
+{
+    "name": "活着",
+    "type": "Book",
+    "link": "https://book.douban.com/subject/4913064/",
+    "comment": "人是为了活着本身而活着，而不是为了活着之外的任何事物而活着。",
+    "spineColor": "#A63434",
+    "rating": "Must Read",
+    "progress": 100,
+    "cover": "/images/books/to-live.png"
+}

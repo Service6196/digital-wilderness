@@ -1,0 +1,163 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ToolCard from '../components/stack/ToolCard.astro';
+import TangibleBook from '../components/stack/TangibleBook.astro';
+import { getCollection } from 'astro:content';
+
+const stackItems = await getCollection('stack');
+
+// Group by Type
+const groups = {
+    Software: stackItems.filter(item => item.data.type === 'Software'),
+    Hardware: stackItems.filter(item => item.data.type === 'Hardware'),
+    Book: stackItems.filter(item => item.data.type === 'Book'),
+};
+---
+
+<BaseLayout title="Stack | The Frame">
+    <Header />
+    
+    <main class="min-h-screen pt-32 px-[max(5vw,20px)]">
+        
+        <header class="mb-24 max-w-2xl">
+            <h1 class="font-serif text-[clamp(3.5rem,8vw,5rem)] leading-none italic text-[var(--text)] mb-6">
+                Stack
+            </h1>
+            <p class="font-sans text-lg text-[var(--text-secondary)] leading-relaxed opacity-80">
+                The tools, objects, and books that shape my thinking and craft.
+                <br class="hidden md:block" />
+                Curated for functionality and aesthetics.
+            </p>
+        </header>
+
+        <!-- QUOTES Section (Replaces Tools) -->
+        <div class="mb-32 grid grid-cols-1 md:grid-cols-2 gap-16">
+            <div class="md:col-span-1">
+                 <h2 class="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)] mb-8 pb-4 border-b border-[var(--grid-line)]">
+                    Quote
+                </h2>
+                <div class="space-y-8">
+                     {groups.Book.slice(0, 1).map(item => (
+                         <div class="group">
+                            <blockquote class="font-serif text-xl italic text-[var(--text)] leading-relaxed mb-4 opacity-90">
+                                "{item.data.comment}"
+                            </blockquote>
+                            <div class="flex items-center gap-3 text-sm font-mono text-[var(--text-secondary)] opacity-60">
+                                <span class="w-8 h-[1px] bg-[var(--text-secondary)]"></span>
+                                <span>{item.data.name}</span>
+                            </div>
+                         </div>
+                     ))}
+                </div>
+            </div>
+             <div class="md:col-span-1">
+                 <h2 class="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)] mb-8 pb-4 border-b border-[var(--grid-line)]">
+                    Quote
+                </h2>
+                <div class="space-y-8">
+                     {groups.Book.slice(1, 2).map(item => (
+                         <div class="group">
+                             <blockquote class="font-serif text-xl italic text-[var(--text)] leading-relaxed mb-4 opacity-90">
+                                "{item.data.comment}"
+                            </blockquote>
+                            <div class="flex items-center gap-3 text-sm font-mono text-[var(--text-secondary)] opacity-60">
+                                <span class="w-8 h-[1px] bg-[var(--text-secondary)]"></span>
+                                <span>{item.data.name}</span>
+                            </div>
+                         </div>
+                     ))}
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW Tangible Bookshelf Section -->
+        <section class="mb-32">
+            <header class="mb-16 border-b border-[var(--grid-line)] pb-8">
+                <h2 class="font-serif text-4xl italic text-[var(--text)] mb-4">The Library</h2>
+                <p class="font-mono text-xs tracking-widest text-[var(--text-muted)] uppercase">Physical & Digital Collections</p>
+            </header>
+
+            <!-- 1. On The Desk (Currently Reading) -->
+            <div class="mb-24">
+                <h3 class="font-mono text-xs uppercase tracking-widest text-[var(--accent)] mb-8 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[var(--accent)]"></span>
+                    On The Desk
+                </h3>
+                <div class="flex flex-wrap gap-12 items-end">
+                    {groups.Book.slice(0, 2).map(item => (
+                        <TangibleBook 
+                            view="desk"
+                            title={item.data.name}
+                            author="" 
+                            cover={item.data.cover || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800"} 
+                            progress={item.data.progress || 0}
+                            href={item.data.link}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            <!-- 2. Curated Gallery (Face-out) -->
+            <div class="mb-24">
+                <h3 class="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)] mb-8">Curated Selection</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+                    {groups.Book.slice(2, 4).map(item => (
+                        <TangibleBook 
+                            view="face-out"
+                            title={item.data.name}
+                            author=""
+                            cover={item.data.cover || "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=800"}
+                            comment={item.data.comment}
+                            href={item.data.link}
+                        />
+                    ))}
+                    {groups.Book.slice(4, 6).map(item => (
+                        <TangibleBook 
+                            view="face-out"
+                            title={item.data.name}
+                            author=""
+                            cover={item.data.cover || "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800"}
+                            comment={item.data.comment}
+                            href={item.data.link}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            <!-- 3. The Archive (Spine View) -->
+            <div>
+                <h3 class="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)] mb-4">Archive</h3>
+                <div class="spine-shelf w-full overflow-x-auto">
+                    {groups.Book.map((item, i) => (
+                        <TangibleBook 
+                            view="spine"
+                            title={item.data.name}
+                            author=""
+                            cover="" 
+                            color={item.data.spineColor || `hsl(${30 + (i * 20) % 30}, 40%, ${40 + (i * 10) % 40}%)`}
+                            href={item.data.link}
+                        />
+                    ))}
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <Footer />
+</BaseLayout>
+
+<script>
+    import { createIcons, Globe, Keyboard, Box, Figma, Book } from 'lucide';
+    
+    function init() {
+        createIcons({
+            icons: { Globe, Keyboard, Box, Figma, Book }
+        });
+    }
+
+    init();
+    document.addEventListener('astro:page-load', init);
+</script>

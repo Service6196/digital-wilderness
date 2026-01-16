@@ -1,0 +1,12 @@
+{
+    "name": "Design of Everyday Things",
+    "type": "Book",
+    "link": "https://amzn.to/3example",
+    "comment": "Changed how I see the world. A door is never just a door.",
+    "icon": "book",
+    "spineColor": "#E63946",
+    "rating": "Must Read",
+    "takeaway": "Good design is actually a lot harder to notice than poor design.",
+    "progress": 100,
+    "cover": "https://covers.openlibrary.org/b/isbn/0465050654-L.jpg"
+}

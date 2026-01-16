@@ -9,13 +9,15 @@ interface Props {
 const { code, name, icon, image } = Astro.props;
 ---
 
-<div class="min-w-[280px] h-[360px] bg-gray-200 rounded-[var(--radius-lg)] flex flex-col justify-between transition-all duration-500 hover:-translate-y-2 group cursor-pointer relative overflow-hidden">
+<div 
+    class="entry-card min-w-[280px] h-[360px] flex flex-col justify-between group cursor-pointer relative overflow-hidden"
+>
     <!-- 背景图片 -->
     {image && (
         <img 
             src={image} 
             alt={name}
-            class="absolute inset-0 w-full h-full object-cover md:grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100 transition-all duration-500 scale-100 group-hover:scale-105"
+            class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 scale-100 group-hover:scale-105"
         />
     )}
     
