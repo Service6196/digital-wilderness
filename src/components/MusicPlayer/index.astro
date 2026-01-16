@@ -79,7 +79,8 @@
         align-items: flex-end;
         gap: 12px;
         pointer-events: none;
-        transform: translate3d(0, 0, 0);
+        /* Removed transform: translate3d(0, 0, 0) as it creates a containing block 
+           that breaks position: fixed on child elements */
     }
 
     .music-capsule,
@@ -392,6 +393,38 @@
         text-overflow: ellipsis;
     }
 
+    /* Source Badge */
+    #music-panel .source-badge {
+        flex-shrink: 0;
+        padding: 3px 8px;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        border-radius: 9999px;
+        background: var(--grid-line);
+        color: var(--text);
+        opacity: 0.7;
+        text-transform: uppercase;
+    }
+
+    #music-panel .source-badge.netease {
+        background: #e60026;
+        color: #fff;
+        opacity: 1;
+    }
+
+    #music-panel .source-badge.qq {
+        background: #12b7f5;
+        color: #fff;
+        opacity: 1;
+    }
+
+    #music-panel .source-badge.kuwo {
+        background: #ff6600;
+        color: #fff;
+        opacity: 1;
+    }
+
     .progress-container {
         display: flex;
         align-items: center;
@@ -506,10 +539,10 @@
         .music-panel {
             top: auto;
             bottom: 56px;
-            right: 12px;
-            left: 12px;
-            width: auto;
-            max-width: none;
+            right: 16px;
+            left: auto;
+            width: calc(100vw - 32px);
+            max-width: 320px;
             max-height: 60vh;
             padding: 16px;
         }
@@ -537,7 +570,9 @@
         .music-panel {
             bottom: 52px;
             right: 8px;
-            left: 8px;
+            left: auto;
+            width: calc(100vw - 16px);
+            max-width: 320px;
             padding: 14px;
             border-radius: 10px;
         }
@@ -765,10 +800,10 @@
                         <p class="search-item-title">${song.name}</p>
                         <p class="search-item-artist">${song.artist || song.artists?.join(', ') || '--'}</p>
                     </div>
-                    <div class="source-badge">
-                        ${song.source === 'netease' ? 'NETEASE' : 
+                    <div class="source-badge ${song.source || ''}">
+                        ${song.source === 'netease' ? '网易' : 
                           song.source === 'qq' ? 'QQ' : 
-                          song.source === 'kuwo' ? 'KUWO' : 'UNK'}
+                          song.source === 'kuwo' ? '酷我' : '--'}
                     </div>
                 </div>
             `).join('');
