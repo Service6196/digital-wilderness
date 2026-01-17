@@ -4,6 +4,7 @@ import { ClientRouter } from 'astro:transitions';
 import ScrollTrace from '../components/ScrollTrace.astro';
 import MusicPlayer from '../components/MusicPlayer/index.astro';
 import CommandPalette from '../components/CommandPalette.jsx';
+import Navigation from '../components/Navigation.astro';
 
 // Music Player Configuration
 const musicConfig = {
@@ -57,6 +58,7 @@ const { title, description = "一个关于技术、设计与哲学的非线性�
 	</head>
 	<body class="bg-[var(--bg)] text-[var(--text)] transition-colors duration-300 relative">
         <ScrollTrace />
+        <Navigation />
         <div class="fixed inset-0 z-[-1] noise-overlay pointer-events-none"></div>
 		<slot />
         

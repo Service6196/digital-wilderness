@@ -180,11 +180,12 @@
         color: var(--bg);
     }
 
-    /* Music Panel */
+    /* Music Panel - Desktop: fixed positioning, Mobile: absolute for proper overflow control */
     .music-panel {
+        /* Desktop default */
         position: fixed;
-        bottom: 60px;
-        right: 24px;
+        bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+        right: calc(24px + env(safe-area-inset-right, 0px));
         width: 320px;
         max-height: 70vh;
         background: var(--surface);
@@ -193,17 +194,20 @@
         padding: 20px;
         opacity: 0;
         visibility: hidden;
-        transform: translateY(10px);
+        transform: translateY(10px) scale(0.98);
+        transform-origin: bottom right;
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         overflow: hidden;
+        overflow-y: auto;
         box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         backdrop-filter: blur(20px);
+        z-index: 1201;
     }
 
     .music-panel.active {
         opacity: 1;
         visibility: visible;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 
     .panel-header {
@@ -505,11 +509,19 @@
         opacity: 0.7;
         font-style: italic;
     }
+    /* ========================================
+       MOBILE STYLES - Complete Refactor
+       Strategy: Panel uses FIXED positioning
+       LEFT edge starts from screen left margin
+       RIGHT edge stops before the toggle button area
+       Panel never overflows right side of screen
+       ======================================== */
     @media (max-width: 640px) {
         .music-component {
             position: fixed;
             bottom: calc(16px + env(safe-area-inset-bottom, 0px));
             right: calc(16px + env(safe-area-inset-right, 0px));
+            z-index: 1200;
         }
 
         .music-capsule {
@@ -536,15 +548,23 @@
             max-width: 140px;
         }
 
+        /* PANEL: Fixed positioning, left-aligned, expands towards toggle button */
         .music-panel {
-            top: auto;
-            bottom: 56px;
-            right: 16px;
-            left: auto;
-            width: calc(100vw - 32px);
+            position: fixed !important;
+            /* Bottom: above the toggle button */
+            bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+            /* LEFT edge: small margin from screen left */
+            left: 12px !important;
+            /* RIGHT edge: leave room for toggle button (button width + margin + gap) */
+            right: calc(60px + env(safe-area-inset-right, 0px)) !important;
+            /* Let width be auto-calculated from left/right */
+            width: auto !important;
             max-width: 320px;
             max-height: 60vh;
             padding: 16px;
+            border-radius: 12px;
+            /* Animation from bottom left */
+            transform-origin: bottom left;
         }
 
         .panel-header {
@@ -561,18 +581,40 @@
             width: 100%;
         }
 
+        .search-box input:focus {
+            width: 100%;
+        }
+
         .now-playing {
             gap: 10px;
         }
+
+        .cover-art {
+            width: 56px;
+            height: 56px;
+        }
+
+        .track-title {
+            font-size: 14px;
+        }
+
+        .track-artist {
+            font-size: 11px;
+        }
     }
 
+    /* Extra small screens (< 420px) */
     @media (max-width: 420px) {
+        .music-component {
+            right: calc(12px + env(safe-area-inset-right, 0px));
+            bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        }
+
         .music-panel {
-            bottom: 52px;
-            right: 8px;
-            left: auto;
-            width: calc(100vw - 16px);
-            max-width: 320px;
+            bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+            left: 8px !important;
+            right: calc(52px + env(safe-area-inset-right, 0px)) !important;
+            max-width: none;
             padding: 14px;
             border-radius: 10px;
         }
@@ -581,18 +623,34 @@
             gap: 8px;
         }
 
+        .cover-art {
+            width: 48px;
+            height: 48px;
+        }
+
         .control-btn {
-            width: 38px;
-            height: 38px;
+            padding: 6px;
         }
 
         .play-btn {
-            width: 54px;
-            height: 54px;
+            width: 44px;
+            height: 44px;
         }
 
         .music-capsule.expanded .capsule-info {
-            max-width: 120px;
+            max-width: 100px;
+        }
+
+        .controls {
+            gap: 12px;
+        }
+
+        .lyrics-container {
+            max-height: 60px;
+        }
+
+        .lyrics-text {
+            font-size: 12px;
         }
     }
 </style>

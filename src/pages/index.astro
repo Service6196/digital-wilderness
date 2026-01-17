@@ -1,12 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import DashboardView from '../components/DashboardView.astro';
+import TemporalGreeting from '../components/home/TemporalGreeting.astro';
+import SelectedWorks from '../components/home/SelectedWorks.astro';
+import DigitalDeskFooter from '../components/home/DigitalDeskFooter.astro';
 ---
 
 <BaseLayout title="Digital Wilderness | The Frame">
-    <main class="min-h-screen p-8 pt-32 pb-24">
-        <DashboardView />
+    <main class="min-h-screen relative">
+        <TemporalGreeting />
+        <SelectedWorks />
+        <DigitalDeskFooter />
     </main>
 </BaseLayout>
-
-
