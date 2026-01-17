@@ -1,6 +1,6 @@
 ---
 ---
-<nav class="fixed top-0 left-0 w-full z-50 px-4 md:px-8 py-6 flex justify-between items-center pointer-events-none text-[var(--text)]">
+<nav class="fixed top-0 left-0 w-full z-[100] px-4 md:px-8 py-6 flex justify-between items-center pointer-events-none text-[var(--text)]">
     <!-- Logo -->
     <a href="/" class="pointer-events-auto group relative">
         <span class="font-serif font-bold text-xl tracking-tight relative z-10">The Frame</span>
@@ -29,8 +29,8 @@
         </li>
         <li>
             <a href="/stack" class="flex flex-col group items-center">
-                <span class="font-serif font-bold text-lg group-hover:text-[var(--accent)] transition-colors">工具</span>
-                <span class="font-serif italic text-[10px] uppercase tracking-widest opacity-50 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all">Stack</span>
+                <span class="font-serif font-bold text-lg group-hover:text-[var(--accent)] transition-colors">书房</span>
+                <span class="font-serif italic text-[10px] uppercase tracking-widest opacity-50 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all">Library</span>
             </a>
         </li>
         <li>
@@ -53,14 +53,13 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="moon-icon hidden"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
     </button>
 
-    <!-- Mobile Menu Button (Simple) -->
-    <button class="md:hidden pointer-events-auto p-2" aria-label="Menu" id="mobile-menu-btn">
+    <button class="md:hidden pointer-events-auto p-3 min-w-11 min-h-11 flex items-center justify-center touch-manipulation" aria-label="Menu" id="mobile-menu-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
     </button>
 
     <!-- Mobile Menu Overlay (Hidden by default) -->
     <div class="fixed inset-0 bg-[var(--bg)] z-50 flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300" id="mobile-menu">
-        <button class="absolute top-6 right-8 p-2" id="close-menu-btn">
+        <button class="absolute top-6 right-6 p-3 min-w-11 min-h-11 flex items-center justify-center pointer-events-auto touch-manipulation z-10" id="close-menu-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
         <div class="flex flex-col gap-8 text-center pointer-events-auto">
@@ -68,19 +67,32 @@
              <a href="/journal" class="text-3xl font-serif">思考</a>
              <a href="/works" class="text-3xl font-serif">作品</a>
              <a href="/signals" class="text-3xl font-serif">信号</a>
-             <a href="/stack" class="text-3xl font-serif">工具</a>
+             <a href="/stack" class="text-3xl font-serif">书房</a>
              <a href="/now" class="text-3xl font-serif">当下</a>
              <a href="/manual" class="text-3xl font-serif">了解我</a>
+             
+             <!-- Mobile Dark Mode Toggle -->
+             <button class="mt-8 flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-[var(--text)]/20 text-sm font-mono touch-manipulation" id="theme-toggle-mobile" aria-label="Toggle dark mode">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="sun-icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="moon-icon hidden"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                 <span id="theme-label">切换主题</span>
+             </button>
         </div>
     </div>
 </nav>
 
 <script>
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    const closeBtn = document.getElementById('close-menu-btn');
-    const menu = document.getElementById('mobile-menu');
+    function initMobileMenu() {
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-menu-btn');
+        const menu = document.getElementById('mobile-menu');
 
-    if (menuBtn && menu && closeBtn) {
+        if (!menuBtn || !menu || !closeBtn) return;
+        
+        // Prevent duplicate listeners
+        if (menuBtn.hasAttribute('data-menu-init')) return;
+        menuBtn.setAttribute('data-menu-init', 'true');
+
         menuBtn.addEventListener('click', () => {
             menu.classList.remove('opacity-0', 'pointer-events-none');
             document.body.style.overflow = 'hidden';
@@ -99,11 +111,15 @@
             });
         });
     }
+    
+    initMobileMenu();
+    document.addEventListener('astro:page-load', initMobileMenu);
 </script>
 
 <script>
     function initThemeToggle() {
         const toggleDesktop = document.getElementById('theme-toggle-desktop');
+        const toggleMobile = document.getElementById('theme-toggle-mobile');
         
         function updateIcons() {
             const isDark = document.documentElement.classList.contains('dark');
@@ -125,8 +141,16 @@
             updateIcons();
         }
         
-        if (toggleDesktop) {
+        // Desktop Toggle
+        if (toggleDesktop && !toggleDesktop.hasAttribute('data-theme-init')) {
+            toggleDesktop.setAttribute('data-theme-init', 'true');
             toggleDesktop.addEventListener('click', toggleTheme);
+        }
+        
+        // Mobile Toggle
+        if (toggleMobile && !toggleMobile.hasAttribute('data-theme-init')) {
+            toggleMobile.setAttribute('data-theme-init', 'true');
+            toggleMobile.addEventListener('click', toggleTheme);
         }
         
         // Initialize icons based on current state

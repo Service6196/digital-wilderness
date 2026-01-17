@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getCollection } from 'astro:content';
 
@@ -9,7 +8,6 @@ const sortedSections = manualSections.sort((a, b) => a.data.order - b.data.order
 ---
 
 <BaseLayout title="User Manual | The Frame">
-    <Header />
     
     <main class="min-h-screen pt-32 px-[max(5vw,20px)] max-w-4xl mx-auto">
         

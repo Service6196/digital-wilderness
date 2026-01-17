@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { getCollection } from 'astro:content';
 
@@ -12,7 +11,6 @@ const sortedWorks = works.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDa
 ---
 
 <BaseLayout title="Works | The Frame">
-    <Header />
     
     <main class="min-h-screen pt-32 px-[max(5vw,20px)]">
         <!-- Header -->

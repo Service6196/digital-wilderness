@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "./bookshelf.css";
 
+/* Mobile Touch Optimization */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 :root {
   /* SENSES V3.0 Palette: Warm Gallery Edition - PRD v3.0 */
   --bg-gradient: linear-gradient(180deg, #F4F4F0 0%, #FFFCF5 100%);
@@ -64,118 +70,120 @@
   --shadow-outline: 0 0 0 1px rgba(255, 255, 255, 0.05);
   /* Subtle rim */
 
-  html {
-    scroll-behavior: smooth;
-    transition: background 3s cubic-bezier(0.4, 0, 0.2, 1), color 3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+  /* Scroll behavior (Move to html selector outside) */
+}
 
+html {
+  scroll-behavior: smooth;
+  transition: background 3s cubic-bezier(0.4, 0, 0.2, 1), color 3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  background: var(--bg);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Mobile Safari fix: background-attachment: fixed doesn't work */
+@supports (-webkit-touch-callout: none) {
   body {
-    background: var(--bg);
-    background: var(--bg-gradient);
-    background-attachment: fixed;
-    color: var(--text);
-    font-family: var(--font-sans);
-    line-height: 1.8;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-    width: 100%;
-    max-width: 100vw;
-    position: relative;
-    min-height: 100vh;
+    background-attachment: scroll;
   }
+}
 
-  /* Mobile Safari fix: background-attachment: fixed doesn't work */
-  @supports (-webkit-touch-callout: none) {
-    body {
-      background-attachment: scroll;
-    }
+@media (max-width: 640px) {
+  body {
+    background-attachment: scroll;
   }
+}
 
-  @media (max-width: 640px) {
-    body {
-      background-attachment: scroll;
-    }
-  }
+/* Global Warm Noise Overlay */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
 
-  /* Global Warm Noise Overlay */
-  .noise-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.4;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
-  }
+:root.dark .noise-overlay {
+  opacity: 0.15;
+}
 
-  :root.dark .noise-overlay {
-    opacity: 0.15;
-  }
+/* Typography Hierarchy */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif) !important;
+  font-weight: 400;
+  /* Regular for artistic elegance */
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
 
-  /* Typography Hierarchy */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-serif) !important;
-    font-weight: 400;
-    /* Regular for artistic elegance */
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
+/* Bilingual Enhancements */
+.cn {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 700;
+}
 
-  /* Bilingual Enhancements */
-  .cn {
-    font-family: 'Noto Serif SC', serif;
-    font-weight: 700;
-  }
+.en {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+}
 
-  .en {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-  }
+/* Frame Entry Style (Tangible Cards - Spec v3.0) */
+.entry-card {
+  /* Material: Warm White micro-gradient, simulating thick paper */
+  background: linear-gradient(180deg, rgba(255, 255, 252, 0.95) 0%, rgba(255, 252, 245, 0.9) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
-  /* Frame Entry Style (Tangible Cards - Spec v3.0) */
-  .entry-card {
-    /* Material: Warm White micro-gradient, simulating thick paper */
-    background: linear-gradient(180deg, rgba(255, 255, 252, 0.95) 0%, rgba(255, 252, 245, 0.9) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+  /* Physical Border: Inner Glow + Outer Outline */
+  border: 1px solid rgba(255, 255, 255, 0.9);
 
-    /* Physical Border: Inner Glow + Outer Outline */
-    border: 1px solid rgba(255, 255, 255, 0.9);
+  /* Warm Shadows: Amber Halo + Warm Brown Glow */
+  box-shadow:
+    0 0 0 1px rgba(212, 163, 115, 0.15),
+    /* Outer Amber Stroke */
+    0 8px 24px -6px rgba(139, 115, 85, 0.12);
+  /* Projection */
 
-    /* Warm Shadows: Amber Halo + Warm Brown Glow */
-    box-shadow:
-      0 0 0 1px rgba(212, 163, 115, 0.15),
-      /* Outer Amber Stroke */
-      0 8px 24px -6px rgba(139, 115, 85, 0.12);
-    /* Projection */
+  border-radius: var(--radius-lg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-    border-radius: var(--radius-lg);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
+:root.dark .entry-card {
+  background: linear-gradient(180deg, rgba(40, 40, 35, 0.85) 0%, rgba(30, 30, 25, 0.8) 100%);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 8px 24px -6px rgba(0, 0, 0, 0.5);
+}
 
-  :root.dark .entry-card {
-    background: linear-gradient(180deg, rgba(40, 40, 35, 0.85) 0%, rgba(30, 30, 25, 0.8) 100%);
-    border-color: rgba(255, 255, 255, 0.05);
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.05),
-      0 8px 24px -6px rgba(0, 0, 0, 0.5);
-  }
-
-  .entry-card:hover {
-    transform: translateY(-3px);
-    box-shadow:
-      0 0 0 1px rgba(212, 163, 115, 0.3),
-      0 16px 40px -8px rgba(139, 115, 85, 0.18);
-  }
+.entry-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px rgba(212, 163, 115, 0.3),
+    0 16px 40px -8px rgba(139, 115, 85, 0.18);
 }
 
 /* Utilities */

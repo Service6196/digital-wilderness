@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import JournalItem from '../components/JournalItem.astro';
 import JournalTextureCard from '../components/JournalTextureCard.astro';
@@ -29,16 +28,15 @@ const spanPatterns = [
 ];
 ---
 
-<BaseLayout title="Journal | The Frame">
-    <Header />
+<BaseLayout title="Thinking | The Frame">
     
     <main class="min-h-screen pt-12">
         <!-- Header Section: Rhythm (Header -> 6rem -> Title) -->
         <header class="px-[4vw] mt-24 mb-32">
             <h1 class="font-serif text-[clamp(3.5rem,10vw,6rem)] leading-[1.1] tracking-[-0.03em] text-[var(--text)] italic">
-                Journal
+                Thinking
                 <span class="block text-xl md:text-2xl font-mono not-italic mt-4 text-[var(--text-muted)] tracking-widest normal-case">
-                    THOUGHTS & ARCHIVES
+                    思考 & ARCHIVES
                 </span>
             </h1>
         </header>
