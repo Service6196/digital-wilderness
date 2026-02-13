@@ -1,0 +1,115 @@
+﻿---
+---
+
+<section class="h-[60vh] flex flex-col justify-center relative overflow-hidden" id="hero-section">
+    <!-- Dynamic Background Light (simulated via gradient) -->
+    <div class="absolute inset-0 pointer-events-none z-[-1] transition-all duration-1000 bg-gradient" id="hero-bg"></div>
+
+    <div class="container mx-auto px-4 md:px-8">
+        <div class="max-w-4xl">
+            <!-- Greeting -->
+            <h1 class="text-[3rem] md:text-[5rem] leading-none mb-6 relative">
+                <span class="block en font-serif italic mb-2 blur-in stagger-1" id="greeting-en">Loading...</span>
+                <span class="block cn font-serif font-light text-[2rem] md:text-[3rem] opacity-80 blur-in stagger-2" id="greeting-cn">...</span>
+            </h1>
+
+            <!-- Real-time Clock -->
+            <div class="font-mono text-xs md:text-sm tracking-widest opacity-60 blur-in stagger-3 flex items-center gap-2">
+                <span id="clock-time">00:00:00</span>
+                <span class="animate-pulse">·</span>
+                <span>SHANGHAI</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes blurIn {
+        from {
+            opacity: 0;
+            filter: blur(10px);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+        }
+    }
+
+    .blur-in {
+        opacity: 0; /* Fallback: start invisible for animation */
+        animation: blurIn 1.5s ease forwards;
+    }
+
+    .stagger-1 { animation-delay: 0.5s; }
+    .stagger-2 { animation-delay: 0.7s; } /* Slightly after English */
+    .stagger-3 { animation-delay: 1.0s; }
+
+    /* Time-based gradients handled via JS classes or just modify generic warmth */
+    .bg-gradient {
+        background: radial-gradient(circle at 70% 30%, rgba(212, 163, 115, 0.15), transparent 60%);
+    }
+</style>
+
+<script>
+    let clockInterval = null;
+
+    function updateTime() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        
+        // Update Clock: HH:MM:SS PM
+        const clockEl = document.getElementById('clock-time');
+        if (clockEl) {
+            clockEl.textContent = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+        }
+    }
+
+    function setGreeting() {
+        const now = new Date();
+        const hour = now.getHours();
+        
+        let en = "Good Morning.";
+        let cn = "早安，沐浴晨光。";
+        
+        if (hour >= 5 && hour < 11) {
+            en = "Good Morning.";
+            cn = "早安，沐浴晨光。";
+        } else if (hour >= 11 && hour < 13) {
+            en = "Good Noon.";
+            cn = "午安，片刻休憩。";
+        } else if (hour >= 13 && hour < 18) {
+            en = "Good Afternoon.";
+            cn = "下午好，捕捉光影。";
+        } else {
+            en = "Good Evening.";
+            cn = "晚上好，静谧时刻。";
+        }
+
+        const elEn = document.getElementById('greeting-en');
+        const elCn = document.getElementById('greeting-cn');
+        
+        if (elEn && elCn) {
+            elEn.innerText = en;
+            elCn.innerText = cn;
+        }
+    }
+
+    function initGreeting() {
+        // Clear any previous interval (prevents memory leak on SPA transitions)
+        if (clockInterval) {
+            clearInterval(clockInterval);
+        }
+        setGreeting();
+        updateTime();
+        clockInterval = setInterval(updateTime, 1000);
+    }
+
+    // Run on initial load
+    initGreeting();
+    
+    // Re-run on Astro View Transitions (SPA navigation)
+    document.addEventListener('astro:page-load', initGreeting);
+</script>

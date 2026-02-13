@@ -1,0 +1,60 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TemporalGreeting from '../components/home/TemporalGreeting.astro';
+import SelectedWorks from '../components/home/SelectedWorks.astro';
+import DigitalDeskFooter from '../components/home/DigitalDeskFooter.astro';
+---
+
+<BaseLayout title="Digital Wilderness | Digital Wilderness">
+    <main class="min-h-screen relative">
+        <TemporalGreeting />
+        
+        <div id="intro-content">
+            <SelectedWorks />
+            <DigitalDeskFooter />
+        </div>
+    </main>
+</BaseLayout>
+
+<style>
+    /* Intro Animations */
+    
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    #intro-content {
+        /* T+2.0s: Start emerging */
+        opacity: 0;
+        animation: fadeUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 2.0s forwards;
+    }
+
+    /* Hide Desktop Nav Links initially and fade it in at 2.0s - NOT mobile button */
+    :global(nav ul) {
+        opacity: 0;
+        animation: fadeIn 1.2s ease 2.0s forwards;
+    }
+    
+    :global(nav > a:first-child) {
+        /* Logo */
+        opacity: 0;
+        animation: fadeIn 1.2s ease 2.0s forwards;
+    }
+    
+    :global(#theme-toggle-desktop) {
+        opacity: 0;
+        animation: fadeIn 1.2s ease 2.0s forwards;
+    }
+</style>

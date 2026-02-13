@@ -1,0 +1,228 @@
+﻿---
+---
+<div class="grid grid-cols-12 gap-8 h-full w-full max-w-[1400px] mx-auto">
+    <!-- Left Column: Navigation / Branding -->
+    <div class="col-span-12 md:col-span-4 flex flex-col justify-start gap-12">
+        
+        <!-- Profile Section -->
+        <div class="profile-section mb-8">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-16 h-16 rounded-full bg-gray-200 overflow-hidden border border-[var(--accent)]">
+                    <!-- Placeholder Avatar -->
+                    <img src="https://picsum.photos/seed/avatar/200/200" alt="Avatar" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg tracking-wide">Digital Wilderness</h3>
+                    <p class="text-xs font-mono opacity-50">一个喜欢折腾的人</p>
+                </div>
+            </div>
+            <p class="text-sm opacity-70 mb-6 leading-relaxed max-w-xs">
+                记录想法，分享发现。<br>希望做有意思的东西。
+            </p>
+            
+            <!-- Avatar Row (Social/Connect) -->
+            <div class="flex items-center gap-2">
+                <div class="flex -space-x-2 mr-3">
+                    <div class="w-8 h-8 rounded-full border-2 border-[var(--bg)] bg-gray-300 overflow-hidden">
+                        <img src="https://picsum.photos/seed/user1/100/100" class="w-full h-full object-cover grayscale" />
+                    </div>
+                    <div class="w-8 h-8 rounded-full border-2 border-[var(--bg)] bg-gray-400 overflow-hidden">
+                        <img src="https://picsum.photos/seed/user2/100/100" class="w-full h-full object-cover grayscale" />
+                    </div>
+                    <div class="w-8 h-8 rounded-full border-2 border-[var(--bg)] bg-gray-500 overflow-hidden">
+                        <img src="https://picsum.photos/seed/user3/100/100" class="w-full h-full object-cover grayscale" />
+                    </div>
+                </div>
+                <button class="w-8 h-8 rounded-full border border-dashed border-[var(--grid-line)] flex items-center justify-center hover:bg-[var(--accent)] hover:text-white hover:border-transparent transition-all group" title="加入链接">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <div class="mb-6 border-l-2 border-[var(--accent)] pl-3">
+                <h2 class="cn text-lg font-bold">导航</h2>
+                <span class="en text-xs text-[var(--accent)] font-serif italic">Navigation</span>
+            </div>
+            <ul class="nav-links space-y-6 relative z-10 pointer-events-auto">
+                <li>
+                    <a href="/" class="flex flex-col group w-fit">
+                        <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">索引</span>
+                        <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Index</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/journal" class="flex flex-col group w-fit">
+                        <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">思考</span>
+                        <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Thinking</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/works" class="flex flex-col group w-fit">
+                        <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">作品</span>
+                        <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Works</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/signals" class="flex flex-col group w-fit">
+                        <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">信号</span>
+                        <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Signals</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/stack" class="flex flex-col group w-fit">
+                        <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">工具</span>
+                        <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Stack</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/now" class="flex flex-col group w-fit">
+                        <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">当下</span>
+                        <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">Now</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/manual" class="flex flex-col group w-fit">
+                        <span class="cn text-2xl font-bold group-hover:text-[var(--accent)] transition-colors">了解我</span>
+                        <span class="en text-xs uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-1">About</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="skills-section mt-12 md:mt-0">
+            <div class="mb-6 border-l-2 border-[var(--accent)] pl-3">
+                <h2 class="cn text-lg font-bold">技能栈</h2>
+                <span class="en text-xs text-[var(--accent)] font-serif italic">Skills</span>
+            </div>
+            <div class="space-y-4">
+                <div class="skill-item">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>交互设计 (UI/UX)</span>
+                        <span class="font-mono">90%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress" style="width: 90%"></div></div>
+                </div>
+                <div class="skill-item">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>前端开发 (Frontend)</span>
+                        <span class="font-mono">85%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress" style="width: 85%"></div></div>
+                </div>
+                <div class="skill-item">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>创意编程 (Creative Coding)</span>
+                        <span class="font-mono">75%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress" style="width: 75%"></div></div>
+                </div>
+                    <div class="skill-item">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>Astro / React 生态</span>
+                        <span class="font-mono">80%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress" style="width: 80%"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Philosophy & Content -->
+    <div class="col-span-12 md:col-span-8 flex flex-col justify-center relative philosophy-section">
+        <div class="absolute top-0 right-0 text-[10rem] font-bold opacity-[0.03] leading-none pointer-events-none select-none year-display">
+        </div>
+
+        <div class="philosophy-card p-8 border border-[var(--grid-line)] rounded-lg bg-[var(--bg)] relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1 h-full bg-[var(--accent)] transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top"></div>
+            
+            <h3 class="text-2xl font-bold mb-2">向死而生</h3>
+            <p class="text-xs font-mono opacity-40 mb-6 tracking-widest">LIVING TOWARDS DEATH</p>
+            
+            <div class="space-y-5 text-sm leading-relaxed opacity-85">
+                <p class="text-lg font-medium border-l-2 border-[var(--accent)] pl-4">
+                    "向死而生是普通人回应混沌的唯一解药。"
+                </p>
+                
+                <div class="grid grid-cols-1 gap-4 mt-6">
+                    <div class="p-3 bg-[var(--grid-line)] bg-opacity-30 rounded">
+                        <span class="text-[var(--accent)] font-bold text-base">死亡</span>
+                        <p class="text-xs mt-1 opacity-70">死亡逼迫你把视野拉到最高，以生命为尺度去衡量决策。如果我今天不做这件事，80岁的我会不会后悔？</p>
+                    </div>
+                    <div class="p-3 bg-[var(--grid-line)] bg-opacity-30 rounded">
+                        <span class="text-[var(--accent)] font-bold text-base">爱</span>
+                        <p class="text-xs mt-1 opacity-70">爱欲要求一个人有勇气消除自我，以便能够发现他者的存在。合理的爱情，那不叫爱情——那是交易。</p>
+                    </div>
+                    <div class="p-3 bg-[var(--grid-line)] bg-opacity-30 rounded">
+                        <span class="text-[var(--accent)] font-bold text-base">人工智能</span>
+                        <p class="text-xs mt-1 opacity-70">AI是死亡的代言人。它发展的越好，作为个体我们就活得越痛苦——因为它提醒着人类的有限性和可替代性。</p>
+                    </div>
+                </div>
+                
+                <hr class="border-[var(--grid-line)] my-5 opacity-30"/>
+                
+                <p class="text-base font-serif italic text-center">
+                    "和他人跨越灵魂的链接和共同分享的回忆，<br>
+                    是我们面对死亡的<span class="text-[var(--accent)] font-bold">最好解药</span>。"
+                </p>
+                
+                <p class="text-center text-xs opacity-50 mt-4 font-mono">
+                    死亡提醒 + 后悔最小化 = 活出真正的自我
+                </p>
+            </div>
+        </div>
+
+            <div class="mt-8 grid grid-cols-2 gap-4">
+                <div class="p-4 border border-[var(--grid-line)] rounded hover:bg-[var(--grid-line)] transition-colors cursor-pointer">
+                    <h4 class="font-mono text-xs opacity-50 mb-2">LOCATION</h4>
+                    <p>Digital Wilderness</p>
+                </div>
+                <div class="p-4 border border-[var(--grid-line)] rounded hover:bg-[var(--grid-line)] transition-colors cursor-pointer">
+                    <h4 class="font-mono text-xs opacity-50 mb-2">CONTACT</h4>
+                    <p>hello@theframe.design</p>
+                </div>
+            </div>
+    </div>
+</div>
+
+<style>
+    .progress-bar {
+        width: 100%;
+        height: 2px;
+        background: var(--grid-line);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .progress {
+        height: 100%;
+        background: var(--accent);
+        transform-origin: left;
+        /* Animation handled by JS or simple transition */
+        transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    
+    /* Auto animate if no JS toggle needed, or just default */
+    .progress {
+         transform: scaleX(1); /* Default to full for static view */
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+        .grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* 隐藏右侧哲学卡片 in view if wanted, or keep it */
+        /* keeping it for dashboard view */
+    }
+</style>
+
+<script>
+    const yearDisplay = document.querySelector('.year-display');
+    if (yearDisplay) {
+        yearDisplay.textContent = new Date().getFullYear().toString();
+    }
+</script>

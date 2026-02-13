@@ -1,0 +1,146 @@
+/* Tangible Bookshelf System - PRD v3.0 */
+
+/* 1. On The Desk (3D Floating) */
+.book-desk {
+    position: relative;
+    transform-style: preserve-3d;
+    transform: perspective(1000px) rotateY(-15deg) rotateX(5deg);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:
+        -10px 10px 20px rgba(139, 115, 85, 0.2),
+        -2px 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 4px 8px 8px 4px;
+}
+
+.book-desk:hover {
+    transform: perspective(1000px) rotateY(-5deg) rotateX(0deg) translateY(-10px);
+    box-shadow:
+        -20px 30px 40px rgba(139, 115, 85, 0.15),
+        -5px 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.book-ribbon {
+    position: absolute;
+    top: 0;
+    right: 20px;
+    width: 12px;
+    background: #D93025;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    transform-origin: top;
+    transition: height 0.3s ease;
+}
+
+.book-ribbon::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    border-left: 6px solid #D93025;
+    border-right: 6px solid #D93025;
+    border-bottom: 10px solid transparent;
+}
+
+/* 2. Face-out Display (Gallery) */
+.book-faceout {
+    position: relative;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.08),
+        0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.book-faceout:hover {
+    transform: scale(1.02);
+}
+
+.book-obi {
+    position: absolute;
+    bottom: 20px;
+    left: -4px;
+    right: -4px;
+    background: rgba(255, 252, 245, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 8px 12px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(4px);
+    transform: rotate(-1deg);
+    z-index: 20;
+}
+
+.book-obi::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -4px;
+    height: 4px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    /* Simulate fold shadow */
+    transform: skewX(45deg);
+    width: 4px;
+    left: 2px;
+}
+
+/* 3. Spine View (Archive) */
+.spine-shelf {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    padding: 20px 0;
+    border-bottom: 4px solid #E5E0D8;
+    overflow-x: auto;
+    perspective: 1000px;
+}
+
+.book-spine {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    height: 240px;
+    /* Standard height */
+    width: 40px;
+    /* Varying width based on page count ideally, but fixed for now */
+    background: var(--spine-color, #8C857B);
+    color: var(--spine-text, #fff);
+    padding: 12px 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    border-radius: 4px 4px 0 0;
+    box-shadow: inset 4px 0 10px rgba(0, 0, 0, 0.1);
+    /* Spine curve */
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* Vertically (horizontally in writing mode) enter */
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, margin 0.2s ease;
+    flex-shrink: 0;
+}
+
+.book-spine:hover {
+    transform: translateY(-10px);
+    z-index: 10;
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        inset 4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Controlled Chaos for Spines */
+.book-spine-item:nth-child(3n) .book-spine {
+    transform: rotate(1deg);
+    margin-right: 2px;
+}
+
+.book-spine-item:nth-child(5n) .book-spine {
+    transform: rotate(-1deg);
+    height: 230px;
+}
+
+.book-spine-item:nth-child(7n) .book-spine {
+    height: 250px;
+}

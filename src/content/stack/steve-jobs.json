@@ -1,0 +1,11 @@
+{
+    "name": "Steve Jobs",
+    "title": "Steve Jobs",
+    "author": "Walter Isaacson",
+    "type": "Book",
+    "link": "https://amzn.to/3example",
+    "comment": "The people who are crazy enough to think they can change the world are the ones who do.",
+    "spineColor": "#CCCCCC",
+    "progress": 100,
+    "cover": "https://images.unsplash.com/photo-1531297461136-82lw9z1s7q3?auto=format&fit=crop&q=80&w=800"
+}

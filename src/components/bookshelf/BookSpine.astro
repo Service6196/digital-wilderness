@@ -1,0 +1,16 @@
+﻿---
+interface Props {
+    title: string;
+    color?: string;
+}
+
+const { title, color = '#595045' } = Astro.props;
+const displayColor = color || '#595045';
+---
+<div 
+    class="book-spine" 
+    style={`background-color: ${displayColor};`}
+    title={title}
+>
+    <span>{title}</span>
+</div>

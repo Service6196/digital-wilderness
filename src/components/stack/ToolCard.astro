@@ -1,0 +1,77 @@
+﻿---
+/**
+ * ToolCard - Stack 工具卡片
+ * PRD: 强调封面图实体感，悬停显示浮层短评
+ */
+interface Props {
+    item: {
+        data: {
+            name: string;
+            link?: string;
+            icon?: string;
+            comment: string;
+        }
+    }
+}
+
+const { item } = Astro.props;
+---
+
+<a 
+    href={item.data.link || '#'} 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    class="tool-card block group relative"
+>
+    <div class="card-inner entry-card p-6">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-[var(--text)] group-hover:text-[var(--accent)] transition-colors">{item.data.name}</h3>
+            <i data-lucide={item.data.icon || 'box'} class="w-4 h-4 opacity-40 group-hover:text-[var(--accent)] group-hover:opacity-100 transition-all"></i>
+        </div>
+        <p class="text-sm opacity-60 leading-relaxed font-serif italic line-clamp-2">
+            {item.data.comment}
+        </p>
+    </div>
+    
+    <!-- Hover Tooltip -->
+    <div class="tooltip absolute left-0 right-0 top-full mt-2 p-4 bg-[var(--bg)] border border-[var(--accent)] rounded-[var(--radius-lg)] shadow-lg z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pointer-events-none">
+        <p class="text-sm leading-relaxed font-serif italic text-[var(--text)]">
+            "{item.data.comment}"
+        </p>
+        <div class="mt-2 font-mono text-xs opacity-50 flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            点击访问
+        </div>
+    </div>
+</a>
+
+<style>
+    .tool-card {
+        position: relative;
+    }
+    
+    .tool-card:hover .entry-card {
+        /* Allow entry-card hover effects to activate */
+        transform: translateY(-3px);
+        box-shadow: 0 0 0 1px rgba(212, 163, 115, 0.3), 0 16px 40px -8px rgba(139, 115, 85, 0.18);
+    }
+    
+    .card-inner {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .tooltip {
+        transform: translateY(8px);
+    }
+    
+    .tool-card:hover .tooltip {
+        transform: translateY(0);
+    }
+    
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>

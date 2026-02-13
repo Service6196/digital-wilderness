@@ -1,0 +1,170 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Footer from '../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+// 获取所有已发布文章的数据用于客户端搜索
+const allPosts = await getCollection('posts', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+const searchData = allPosts.map(post => ({
+    entryId: post.id,
+    title: post.data.title,
+    description: post.data.description,
+    category: post.data.category || '未分类',
+    tags: post.data.tags || [],
+    pubDate: post.data.pubDate.toISOString().split('T')[0],
+}));
+---
+
+<BaseLayout title="搜索 | Digital Wilderness">
+    
+    <main class="pt-[160px] px-[4vw] min-h-screen">
+        <!-- Search Header -->
+        <div class="max-w-2xl mx-auto mb-16">
+            <h1 class="text-[clamp(2rem,4vw,3rem)] font-bold tracking-tighter text-center mb-8">
+                搜索
+            </h1>
+            
+            <!-- Search Input -->
+            <div class="relative">
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="输入关键词搜索文章..."
+                    class="w-full h-16 px-6 text-lg bg-transparent border-2 border-[var(--grid-line)] rounded-full focus:border-[var(--text)] focus:outline-none transition-colors"
+                    autocomplete="off"
+                />
+                <div class="absolute right-6 top-1/2 -translate-y-1/2 opacity-40">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.3-4.3"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- 搜索提示 -->
+            <p id="search-hint" class="text-center font-mono text-sm opacity-50 mt-4">
+                共 {searchData.length} 篇文章
+            </p>
+        </div>
+
+        <!-- Search Results -->
+        <div id="search-results" class="max-w-3xl mx-auto">
+            <!-- Initial state: show all posts -->
+            <div id="all-posts" class="space-y-0">
+                {searchData.map((post) => (
+                    <a 
+                        href={`/journal/${post.entryId}`} 
+                        class="search-result-item group flex items-center justify-between border-t border-[var(--grid-line)] py-6 hover:bg-[var(--text)] hover:text-[var(--bg)] transition-colors duration-300 px-4 -mx-4"
+                        data-title={post.title.toLowerCase()}
+                        data-desc={post.description.toLowerCase()}
+                        data-category={post.category.toLowerCase()}
+                        data-tags={post.tags.join(' ').toLowerCase()}
+                    >
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <span class="font-mono text-xs opacity-50">{post.category}</span>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-medium">{post.title}</h3>
+                            <p class="text-sm opacity-60 line-clamp-1 mt-1">{post.description}</p>
+                        </div>
+                        <div class="flex items-center gap-4 ml-4">
+                            <span class="hidden md:block font-mono text-xs opacity-50">{post.pubDate}</span>
+                            <span class="opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all">
+                                &rarr;
+                            </span>
+                        </div>
+                    </a>
+                ))}
+                <div class="border-t border-[var(--grid-line)]"></div>
+            </div>
+            
+            <!-- No results message -->
+            <div id="no-results" class="hidden text-center py-16">
+                <p class="text-xl opacity-60 mb-4">未找到相关文章</p>
+                <p class="font-mono text-sm opacity-40">尝试其他关键词</p>
+            </div>
+        </div>
+    </main>
+
+    <Footer />
+</BaseLayout>
+
+<script>
+    function initSearch() {
+        const searchInput = document.getElementById('search-input') as HTMLInputElement;
+        const searchHint = document.getElementById('search-hint');
+        const allPostsContainer = document.getElementById('all-posts');
+        const noResults = document.getElementById('no-results');
+        const resultItems = document.querySelectorAll('.search-result-item');
+
+        if (!searchInput || !allPostsContainer || !noResults) return;
+
+        let debounceTimer: number;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const query = (e.target as HTMLInputElement).value.toLowerCase().trim();
+                
+                if (!query) {
+                    // 显示所有文章
+                    resultItems.forEach(item => {
+                        item.classList.remove('hidden');
+                    });
+                    noResults.classList.add('hidden');
+                    allPostsContainer.classList.remove('hidden');
+                    if (searchHint) searchHint.textContent = `共 ${resultItems.length} 篇文章`;
+                    return;
+                }
+
+                let matchCount = 0;
+                
+                resultItems.forEach(item => {
+                    const title = item.getAttribute('data-title') || '';
+                    const desc = item.getAttribute('data-desc') || '';
+                    const category = item.getAttribute('data-category') || '';
+                    const tags = item.getAttribute('data-tags') || '';
+                    
+                    const searchText = `${title} ${desc} ${category} ${tags}`;
+                    const matches = searchText.includes(query);
+                    
+                    if (matches) {
+                        item.classList.remove('hidden');
+                        matchCount++;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                if (matchCount === 0) {
+                    noResults.classList.remove('hidden');
+                    allPostsContainer.classList.add('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                    allPostsContainer.classList.remove('hidden');
+                }
+
+                if (searchHint) {
+                    searchHint.textContent = query 
+                        ? `找到 ${matchCount} 篇相关文章`
+                        : `共 ${resultItems.length} 篇文章`;
+                }
+            }, 200);
+        });
+
+        // 自动聚焦
+        searchInput.focus();
+    }
+
+    initSearch();
+    document.addEventListener('astro:page-load', initSearch);
+</script>
+
+<style>
+    .search-result-item.hidden {
+        display: none;
+    }
+</style>

@@ -1,0 +1,126 @@
+﻿---
+interface Props {
+    title: string;
+    author: string;
+    cover: string;
+    color?: string; // Dominant color for spine
+    progress?: number; // 0-100 for 'desk' view ribbon
+    view: 'desk' | 'face-out' | 'spine';
+    comment?: string; // For 'face-out' obi strip
+    href?: string;
+}
+
+const { title, author, cover, color = '#8C857B', progress = 0, view, comment, href } = Astro.props;
+
+// Calculate ribbon length based on progress (max height ~90%)
+const ribbonHeight = `${Math.max(10, Math.min(90, progress))}%`;
+
+// For spine view, determine text color based on background brightness (simple heuristic)
+// Assuming simple contrast needs
+const spineTextColor = '#FFFFFF'; 
+---
+
+{view === 'desk' && (
+    <a href={href} class="block group perspective-container relative transition-transform duration-500 hover:-translate-y-2 hover:rotate-1">
+        <div class="book-desk w-[160px] h-[240px] bg-white relative overflow-hidden rounded-r-sm shadow-xl">
+            <img src={cover} alt={title} class="w-full h-full object-cover" />
+            
+            {/* Lighting Overlay */}
+            <div class="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/10 pointer-events-none mix-blend-multiply"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none mix-blend-soft-light"></div>
+            
+            {/* Texture Overlay */}
+            <div class="absolute inset-0 opacity-30 bg-[url('/noise.png')] pointer-events-none mix-blend-multiply"></div>
+
+            {/* Spine Highlight (Left edge) */}
+            <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-white/40 mix-blend-overlay"></div>
+
+            {/* Reading Ribbon (Red) */}
+            <div class="absolute top-0 right-4 w-4 bg-[#D00000] shadow-md transform -translate-y-[2px] z-20" style={`height: ${ribbonHeight};`}>
+                 <div class="absolute bottom-0 left-0 w-full h-4 bg-[#D00000] transform skew-y-12 origin-bottom-right translate-y-2"></div>
+            </div>
+            
+            {/* Hand-written Note (Sticky) */}
+            {comment && (
+                <div class="absolute -bottom-4 -right-8 w-24 h-24 bg-[#fffcbb] p-3 shadow-lg transform rotate-6 hover:rotate-0 transition-transform duration-300 z-30 flex items-center justify-center">
+                    <p class="font-handwriting text-[10px] leading-tight text-slate-800 rotate-[-4deg]">
+                        {comment}
+                    </p>
+                    {/* Tape */}
+                    <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 bg-white/40 backdrop-blur-sm transform -rotate-2"></div>
+                </div>
+            )}
+        </div>
+        <div class="mt-6 text-left max-w-[160px]">
+            <h4 class="font-serif font-bold text-lg leading-[1.1] text-[var(--text)] group-hover:text-[var(--accent)] transition-colors line-clamp-2">{title}</h4>
+            <div class="mt-2 text-xs font-mono text-[#D00000] flex items-center gap-2">
+                <span class="block w-1.5 h-1.5 rounded-full bg-[#D00000] animate-pulse"></span>
+                {progress}% Read
+            </div>
+        </div>
+    </a>
+)}
+
+{view === 'face-out' && (
+    <a href={href} class="block group relative w-full h-full">
+        <div class="relative w-full aspect-[2/3] overflow-hidden rounded-sm shadow-sm group-hover:shadow-[var(--shadow-warm)] transition-all duration-500">
+            <img src={cover} alt={title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            
+            {/* Curator's Note Overlay */}
+            {comment && (
+                <div class="absolute inset-0 bg-[var(--text)]/90 flex flex-col items-center justify-center p-6 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px]">
+                    <p class="font-serif italic text-white/90 text-lg leading-relaxed">
+                        "{comment}"
+                    </p>
+                    <span class="mt-4 w-8 h-[1px] bg-[var(--accent)]"></span>
+                    <span class="mt-2 text-[10px] font-mono uppercase tracking-widest text-[var(--accent)]">PM Takeaway</span>
+                </div>
+            )}
+        </div>
+        {!comment && (
+             <div class="absolute bottom-4 left-4 font-mono text-[9px] text-white/80 uppercase tracking-widest bg-black/50 px-2 py-1 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                Explore
+            </div>
+        )}
+    </a>
+)}
+
+{view === 'spine' && (
+    <a href={href} class="group relative flex-shrink-0 transition-transform duration-300 hover:-translate-y-2 origin-bottom" title={`${title} by ${author}`}>
+        <div 
+            class="w-8 md:w-10 h-[calc(180px+var(--noise-h))] rounded-sm border-l border-white/20 shadow-lg relative overflow-hidden"
+            style={`
+                background-color: ${color}; 
+                margin-top: var(--noise-m);
+                margin-right: -1px; /* Tightly packed */
+            `}
+        >
+            {/* Spine Text - Vertical */}
+            <div class="absolute inset-0 flex items-center justify-center writing-vertical">
+                <span 
+                    class="font-mono text-[10px] tracking-widest uppercase opacity-90 truncate max-h-[80%]"
+                    style={`color: ${spineTextColor}; text-orientation: mixed; writings-mode: vertical-rl;`}
+                >
+                    {title.length > 20 ? title.substring(0, 18) + '..' : title}
+                </span>
+            </div>
+            
+            {/* Spine Texture */}
+            <div class="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent pointer-events-none"></div>
+            <div class="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none"></div>
+        </div>
+    </a>
+)}
+
+<style>
+    .perspective-container {
+        perspective: 1000px;
+    }
+    .perspective-container:hover .book-desk {
+        transform: rotateY(-5deg);
+        transition: transform 0.5s ease;
+    }
+    .writing-vertical {
+        writing-mode: vertical-rl;
+    }
+</style>

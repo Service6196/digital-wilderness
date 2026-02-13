@@ -1,0 +1,105 @@
+﻿---
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('posts');
+// Filter for featured or just take latest 3
+const featuredPosts = allPosts.filter(post => post.data.featured).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
+const displayPosts = featuredPosts.length > 0 ? featuredPosts : allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
+
+// Case Study Logic: Check if we have any 'Case Study' category or specific tag to give it special treatment
+// Spec: "Case Study cards can be slightly larger"
+---
+
+<section class="py-24 relative z-10" id="selected-works">
+    <div class="container mx-auto px-4 md:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+            <!-- Left: Sticky Title -->
+            <div class="col-span-1 md:col-span-4 relative hidden md:block">
+                <div class="sticky top-32 transition-transform duration-700 ease-out" id="sticky-title">
+                    <h2 class="text-xs font-mono uppercase tracking-widest opacity-50 mb-4">Selected</h2>
+                    <h3 class="text-3xl font-serif italic text-[var(--accent)]">精选</h3>
+                    <p class="mt-4 text-xs opacity-60 max-w-[150px] leading-relaxed">
+                        A curated collection of thoughts and constructions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mobile Title -->
+            <div class="col-span-1 md:hidden mb-8">
+                <h2 class="text-xs font-mono uppercase tracking-widest opacity-50 mb-2">Selected</h2>
+                <h3 class="text-3xl font-serif italic text-[var(--accent)]">精选</h3>
+            </div>
+
+            <!-- Right: List -->
+            <div class="col-span-1 md:col-span-8 flex flex-col gap-16 parallax-container">
+                {displayPosts.map((post, index) => {
+                    const isCaseStudy = post.data.category === 'Case Study' || post.data.tags.includes('Case Study');
+                    return (
+                        <a href={`/journal/${post.id}`} class={`block group relative ${isCaseStudy ? 'md:-ml-12' : ''}`}>
+                            <article class={`entry-card p-6 md:p-10 transition-all duration-500 hover:-translate-y-2 ${isCaseStudy ? 'border-[var(--accent)] border-opacity-30' : ''}`}>
+                                
+                                <div class="flex flex-col gap-6">
+                                    {/* Header */}
+                                    <div class="flex justify-between items-start">
+                                        <div class="space-y-2">
+                                            {isCaseStudy && <span class="text-[10px] uppercase tracking-widest bg-[var(--accent)] text-white px-2 py-1 rounded-sm">Case Study</span>}
+                                            <h4 class={`font-serif group-hover:text-[var(--accent)] transition-colors duration-300 leading-tight ${isCaseStudy ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>
+                                                {post.data.title}
+                                            </h4>
+                                        </div>
+                                        <time class="font-mono text-xs opacity-40 whitespace-nowrap pt-2">{post.data.pubDate.toLocaleDateString('en-CA')}</time>
+                                    </div>
+
+                                    {/* Description */}
+                                    <p class="opacity-70 leading-relaxed font-light text-sm md:text-base max-w-[90%]">
+                                        {post.data.description}
+                                    </p>
+
+                                    {/* Metrics for Case Study (Mock data if real data missing) */}
+                                    {isCaseStudy && (
+                                        <div class="grid grid-cols-3 gap-4 mt-4 pt-6 border-t border-[var(--grid-line)]">
+                                            <div>
+                                                <span class="block font-serif text-2xl md:text-3xl font-light">40%</span>
+                                                <span class="text-[10px] opacity-50 uppercase tracking-wider">Growth</span>
+                                            </div>
+                                            <div>
+                                                <span class="block font-serif text-2xl md:text-3xl font-light">2.5s</span>
+                                                <span class="text-[10px] opacity-50 uppercase tracking-wider">Latency</span>
+                                            </div>
+                                            <div>
+                                                <span class="block font-serif text-2xl md:text-3xl font-light">A+</span>
+                                                <span class="text-[10px] opacity-50 uppercase tracking-wider">Rating</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Footer / Tags */}
+                                    <div class="flex gap-2 flex-wrap mt-2">
+                                        {post.data.tags.slice(0, 3).map(tag => (
+                                            <span class="text-[10px] font-mono opacity-40">#{tag}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </article>
+                        </a>
+                    );
+                })}
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Parallax logic: slightly offset the list on scroll
+    // Only on Desktop
+    if (window.matchMedia("(min-width: 768px)").matches) {
+        document.addEventListener('scroll', () => {
+            const list = document.querySelector('.parallax-container') as HTMLElement;
+            if (list) {
+                const scrollY = window.scrollY;
+                // Move list upward slightly faster
+                list.style.transform = `translateY(${scrollY * -0.05}px)`;
+            }
+        });
+    }
+</script>

@@ -1,0 +1,92 @@
+﻿---
+// Lightbox 组件 - 点击图片全屏查看
+---
+
+<!-- Lightbox Container -->
+<div id="lightbox" class="fixed inset-0 z-[200] bg-black/95 hidden items-center justify-center p-8 cursor-zoom-out" role="dialog" aria-modal="true">
+    <button id="lightbox-close" class="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/40 transition-colors z-10" aria-label="关闭">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full object-contain rounded-sm shadow-2xl transition-transform duration-300" />
+    
+    <p id="lightbox-caption" class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm font-mono max-w-lg text-center"></p>
+</div>
+
+<style>
+    #lightbox.active {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+    }
+    
+    #lightbox-img {
+        animation: scaleIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes scaleIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    
+    /* 禁止背景滚动 */
+    body.lightbox-open {
+        overflow: hidden;
+    }
+</style>
+
+<script>
+    function initLightbox() {
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+        const lightboxCaption = document.getElementById('lightbox-caption');
+        const closeBtn = document.getElementById('lightbox-close');
+        
+        if (!lightbox || !lightboxImg || !lightboxCaption) return;
+
+        // 点击图片打开灯箱
+        document.querySelectorAll('article img, .lightbox-trigger').forEach((img) => {
+            img.classList.add('cursor-zoom-in');
+            img.addEventListener('click', (e) => {
+                e.preventDefault();
+                const src = (img as HTMLImageElement).src || img.getAttribute('data-src') || '';
+                const alt = (img as HTMLImageElement).alt || img.getAttribute('data-alt') || '';
+                
+                lightboxImg.src = src;
+                lightboxImg.alt = alt;
+                lightboxCaption.textContent = alt;
+                
+                lightbox.classList.add('active');
+                document.body.classList.add('lightbox-open');
+            });
+        });
+
+        // 关闭灯箱
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.classList.remove('lightbox-open');
+            lightboxImg.src = '';
+        }
+
+        lightbox.addEventListener('click', closeLightbox);
+        closeBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeLightbox();
+        });
+        
+        // ESC 键关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+    }
+
+    // 初始化
+    initLightbox();
+    document.addEventListener('astro:page-load', initLightbox);
+</script>

@@ -1,0 +1,59 @@
+﻿---
+interface Props {
+  title: string;
+  cover?: string;
+  progress?: number;
+}
+
+const { title, cover, progress = 0 } = Astro.props;
+---
+
+<div class="perspective-1000 group">
+  <div class="book-3d relative w-[180px] aspect-[2/3] transition-transform duration-500 ease-out group-hover:translate-y-[-10px]">
+    <!-- Shadow -->
+    <div class="absolute bottom-0 left-2 w-full h-4 bg-[var(--shadow-warm)] blur-md transform translate-y-4 opacity-70 group-hover:opacity-40 transition-opacity duration-500 rounded-[50%]"></div>
+    
+    <!-- Cover -->
+    <div class="cover absolute inset-0 rounded-r-md overflow-hidden bg-white shadow-lg transform-gpu origin-left">
+      {cover ? (
+        <img src={cover} alt={title} class="w-full h-full object-cover" />
+      ) : (
+        <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 font-mono text-xs p-4 text-center">
+          {title}
+        </div>
+      )}
+      
+      <!-- Highlight Reflection -->
+      <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent pointer-events-none"></div>
+      <!-- Spine Shadow -->
+      <div class="absolute left-0 top-0 bottom-0 w-[4px] bg-gradient-to-r from-black/20 to-transparent"></div>
+    </div>
+    
+    <!-- Ribbon Progress -->
+    {progress > 0 && (
+      <div class="ribbon absolute top-0 -mr-2 right-[20px] w-4 h-full pointer-events-none z-20">
+         <div 
+            class="absolute top-0 w-full bg-red-600 shadow-sm"
+            style={`height: ${progress}%; max-height: 95%;`}
+         >
+             <div class="absolute bottom-0 left-0 w-full h-4 bg-red-600 transform skew-y-12 origin-bottom-right translate-y-2"></div>
+         </div>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  
+  .book-3d {
+    transform: rotateY(-15deg) rotateX(5deg);
+    transform-style: preserve-3d;
+  }
+  
+  .group:hover .book-3d {
+      transform: rotateY(-10deg) rotateX(0deg);
+  }
+</style>

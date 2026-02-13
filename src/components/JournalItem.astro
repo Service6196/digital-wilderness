@@ -1,0 +1,27 @@
+﻿---
+const { title, category, image = "/images/hero-desk.png", href, span = "col-span-12 md:col-span-6" } = Astro.props;
+---
+
+<a href={href} class={`entry-card group block relative ${span} p-6 transition-all duration-300`}>
+
+    <!-- Cover Image -->
+    <div class="aspect-[16/10] overflow-hidden mb-4 rounded-[var(--radius-md)] shadow-sm group-hover:shadow-md transition-all duration-500">
+        <img 
+            src={image} 
+            alt={title}
+            class="w-full h-full object-cover transition-all duration-700 transform group-hover:scale-105"
+            loading="lazy"
+        />
+    </div>
+
+    <!-- Meta Info -->
+    <div class="flex justify-between items-baseline mb-2 font-mono text-xs text-[var(--text-secondary)] uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
+        <span>{category}</span>
+        <span class="opacity-0 group-hover:opacity-100 text-[var(--accent)] transition-opacity duration-300">Read &rarr;</span>
+    </div>
+
+    <!-- Title -->
+    <h3 class="text-xl md:text-2xl font-serif font-medium leading-tight group-hover:text-[var(--accent)] transition-colors duration-300">
+        {title}
+    </h3>
+</a>

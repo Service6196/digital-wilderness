@@ -1,0 +1,120 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Footer from '../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+// Get the latest 'now' status
+const nowUpdates = await getCollection('now');
+const latestStatus = nowUpdates.sort((a, b) => b.data.updatedDate.valueOf() - a.data.updatedDate.valueOf())[0];
+
+// Fallback if no data
+const status = latestStatus?.data || {
+    updatedDate: new Date(),
+    location: 'Digital Wilderness',
+    status: 'Offline',
+    reading: 'Nothing currently',
+    readingProgress: 0,
+    building: 'Something new',
+    learning: 'Life'
+};
+
+const lastUpdate = status.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<BaseLayout title="Now | Digital Wilderness">
+
+    
+    <main class="min-h-screen pt-32 px-[max(5vw,20px)]">
+        <!-- Header -->
+        <header class="mb-24 flex flex-col md:flex-row justify-between items-end gap-8">
+            <div>
+                <h1 class="font-serif text-[clamp(3rem,8vw,5rem)] leading-none italic text-[var(--text)] mb-4">
+                    The Now
+                </h1>
+                <p class="font-mono text-xs tracking-widest text-[var(--text-muted)] uppercase">
+                    Last Updated: {lastUpdate}
+                </p>
+            </div>
+            
+            <!-- Location Widget -->
+            <div class="flex items-center gap-3 font-mono text-xs uppercase text-[var(--text-secondary)] border border-[var(--grid-line)] px-4 py-2 rounded-full">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span>{status.location}</span>
+                <span class="opacity-30">|</span>
+                <span>{status.status}</span>
+            </div>
+        </header>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32">
+            
+            <!-- 1. Reading Widget -->
+            <div class="p-8 rounded-[var(--radius-lg)] border border-white/60 dark:border-white/10 bg-gradient-to-b from-white/40 to-white/20 dark:from-white/5 dark:to-white/[0.02] backdrop-blur-sm shadow-[var(--shadow-warm)] group hover:-translate-y-1 transition-transform duration-300">
+                <div class="flex justify-between items-start mb-6">
+                    <span class="font-mono text-xs uppercase tracking-widest opacity-50">Reading</span>
+                    <i data-lucide="book-open" class="w-5 h-5 opacity-40"></i>
+                </div>
+                <h3 class="font-serif text-2xl italic mb-4 leading-tight">{status.reading}</h3>
+                
+                <!-- Progress Bar -->
+                <div class="w-full h-1 bg-[var(--grid-line)] rounded-full overflow-hidden">
+                    <div class="h-full bg-[var(--accent)]" style={`width: ${status.readingProgress}%`}></div>
+                </div>
+                <div class="flex justify-end mt-2 font-mono text-xs opacity-60">
+                    {status.readingProgress}% Complete
+                </div>
+            </div>
+
+            <!-- 2. Building Widget -->
+            <div class="p-8 rounded-[var(--radius-lg)] border border-white/60 dark:border-white/10 bg-gradient-to-b from-white/40 to-white/20 dark:from-white/5 dark:to-white/[0.02] backdrop-blur-sm shadow-[var(--shadow-warm)] group hover:-translate-y-1 transition-transform duration-300">
+                <div class="flex justify-between items-start mb-6">
+                    <span class="font-mono text-xs uppercase tracking-widest opacity-50">Building</span>
+                    <i data-lucide="hammer" class="w-5 h-5 opacity-40"></i>
+                </div>
+                <h3 class="font-serif text-2xl mb-2 text-[var(--text)]">{status.building}</h3>
+                <p class="text-sm opacity-70 leading-relaxed">Focusing on sensory design and digital gardening architectures.</p>
+            </div>
+
+            <!-- 3. Learning Widget -->
+            <div class="p-8 rounded-[var(--radius-lg)] border border-white/60 dark:border-white/10 bg-gradient-to-b from-white/40 to-white/20 dark:from-white/5 dark:to-white/[0.02] backdrop-blur-sm shadow-[var(--shadow-warm)] group hover:-translate-y-1 transition-transform duration-300">
+                <div class="flex justify-between items-start mb-6">
+                    <span class="font-mono text-xs uppercase tracking-widest opacity-50">Learning</span>
+                    <i data-lucide="brain-circuit" class="w-5 h-5 opacity-40"></i>
+                </div>
+                <h3 class="font-mono text-xl mb-4 text-[var(--accent)]">{status.learning}</h3>
+                <div class="flex gap-2">
+                    <span class="px-2 py-1 border border-[var(--grid-line)] rounded text-xs font-mono opacity-60">Shaders</span>
+                    <span class="px-2 py-1 border border-[var(--grid-line)] rounded text-xs font-mono opacity-60">Math</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Manifesto / Connect -->
+        <section class="max-w-2xl mx-auto text-center mb-32">
+            <h2 class="font-serif text-3xl italic mb-8">Projection of Mind.</h2>
+            <p class="text-lg opacity-80 leading-relaxed mb-12">
+                This space is an attempt to digitized my consciousness. Not just the final output, but the process, the inputs, and the current state of operation.
+            </p>
+            <a href="mailto:hello@theframe.design" class="inline-block px-8 py-4 border border-[var(--text)] rounded-full hover:bg-[var(--text)] hover:text-white transition-all duration-300 font-mono text-xs tracking-widest uppercase">
+                Connect Signal
+            </a>
+        </section>
+
+    </main>
+
+    <Footer />
+</BaseLayout>
+
+<script>
+    import { createIcons, BookOpen, Hammer, BrainCircuit } from 'lucide';
+    
+    function init() {
+        createIcons({
+            icons: { BookOpen, Hammer, BrainCircuit }
+        });
+    }
+
+    init();
+    document.addEventListener('astro:page-load', init);
+</script>

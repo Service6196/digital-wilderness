@@ -1,0 +1,33 @@
+﻿---
+---
+<!-- Scroll Trace: A thin, elegant progress line on the right -->
+<div id="scroll-trace-container" class="fixed top-0 right-0 h-full w-[2px] z-[100] pointer-events-none mix-blend-difference">
+    <div id="scroll-trace-bar" class="w-full bg-[var(--accent)] origin-top transform scale-y-0 transition-transform duration-100 ease-out"></div>
+</div>
+
+<script>
+    function initScrollTrace() {
+        const bar = document.getElementById('scroll-trace-bar');
+        
+        const updateScroll = () => {
+             if (!bar) return;
+             
+             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+             const scrolled = (winScroll / height) || 0;
+             
+             bar.style.height = '100%';
+             bar.style.transform = `scaleY(${scrolled})`;
+             // Opacity logic: hide when at very top?
+             bar.style.opacity = scrolled > 0.01 ? '1' : '0';
+        };
+
+        window.addEventListener('scroll', updateScroll, { passive: true });
+        // Initial call
+        updateScroll();
+    }
+
+    document.addEventListener('astro:page-load', initScrollTrace);
+    // Fallback for first load if ViewTransitions not active immediately
+    initScrollTrace();
+</script>

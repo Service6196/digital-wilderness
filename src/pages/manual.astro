@@ -1,0 +1,66 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Footer from '../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+const manualSections = await getCollection('manual');
+const sortedSections = manualSections.sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="User Manual | Digital Wilderness">
+    
+    <main class="min-h-screen pt-32 px-[max(5vw,20px)] max-w-4xl mx-auto">
+        
+        <header class="mb-24 text-center">
+            <h1 class="font-mono text-3xl md:text-4xl text-[var(--text)] mb-4 tracking-tighter">
+                USER_MANUAL_OF_ME.doc
+            </h1>
+            <p class="font-mono text-xs text-[var(--text-muted)] uppercase tracking-widest">
+                Operating Instructions & Warranty
+            </p>
+        </header>
+
+        <div class="space-y-16">
+            {sortedSections.map((section, index) => (
+                <div class="relative group">
+                    <!-- The "Card" Structure -->
+                    <div class="bg-[#f2f0e4] dark:bg-[#2a2824] border-2 border-[var(--text)] dark:border-[#555] p-8 md:p-12 shadow-[4px_4px_0px_var(--text)] dark:shadow-[4px_4px_0px_#555] transform transition-transform hover:-translate-y-1 hover:translate-x-1 relative overflow-hidden text-[#1a1a1a] dark:text-[#e8e6e0]">
+                        
+                        <!-- QC Stamp -->
+                        <div class="absolute top-4 right-4 w-16 h-16 border-2 border-[var(--accent)] rounded-full flex items-center justify-center transform rotate-12 opacity-80">
+                             <div class="text-[10px] font-mono text-[var(--accent)] text-center leading-none uppercase">
+                                 QC<br>PASS<br>0{index+1}
+                             </div>
+                        </div>
+
+                        <!-- Header -->
+                        <div class="border-b-2 border-[#1a1a1a] dark:border-[#888] pb-4 mb-8 flex items-baseline justify-between">
+                            <h2 class="font-mono text-xl font-bold uppercase text-[#1a1a1a] dark:text-[#e8e6e0]">{section.data.section}</h2>
+                            <span class="font-mono text-xs text-[#666] dark:text-[#999]">REF: {section.id.toUpperCase().substring(0, 8)}</span>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="font-mono text-sm md:text-base leading-relaxed text-[#333] dark:text-[#d0cec8] whitespace-pre-line">
+                            <span class="font-bold block mb-2 text-lg text-[#1a1a1a] dark:text-[#e8e6e0]">"{section.data.title}"</span>
+                            {section.data.content}
+                        </div>
+
+                        <!-- Footer decoration -->
+                         <div class="mt-8 pt-4 border-t border-[#1a1a1a] dark:border-[#666] border-dashed flex justify-between font-mono text-[10px] uppercase text-[#666] dark:text-[#888]">
+                             <span>Page {index + 1} / {sortedSections.length}</span>
+                             <span>Printed in Digital Wilderness</span>
+                         </div>
+                    </div>
+                </div>
+            ))}
+
+            {sortedSections.length === 0 && (
+                <div class="text-center font-mono py-12 border-2 border-dashed border-gray-300">
+                    MANUAL NOT FOUND. PLEASE INSERT DISK.
+                </div>
+            )}
+        </div>
+
+    </main>
+    <Footer />
+</BaseLayout>

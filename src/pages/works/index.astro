@@ -1,0 +1,87 @@
+﻿---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+const works = await getCollection('works', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+const sortedWorks = works.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title="Works | Digital Wilderness">
+    
+    <main class="min-h-screen pt-32 px-[max(5vw,20px)]">
+        <!-- Header -->
+        <header class="mb-32">
+            <h1 class="font-serif text-[clamp(3.5rem,10vw,6rem)] leading-[1.1] tracking-[-0.03em] text-[var(--text)] italic">
+                Works
+                <span class="block text-xl md:text-2xl font-mono not-italic mt-4 text-[var(--text-muted)] tracking-widest normal-case">
+                    CASE STUDIES & EXPERIMENTS
+                </span>
+            </h1>
+        </header>
+
+        <!-- Gallery Grid -->
+        <section class="grid grid-cols-1 gap-32 mb-32">
+            {sortedWorks.map((project, index) => (
+                <article class="group relative grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-start">
+                    
+                    <!-- 1. Metadata (Left Sticky-ish) -->
+                    <div class="md:col-span-4 md:sticky md:top-32 flex flex-col gap-6">
+                        <div class="font-mono text-xs tracking-widest uppercase opacity-40">
+                             {String(index + 1).padStart(2, '0')} / {project.data.pubDate.getFullYear()}
+                        </div>
+                        
+                        <h2 class="font-serif text-3xl md:text-4xl italic leading-tight group-hover:text-[var(--accent)] transition-colors">
+                            <a href={`/works/${project.id}`} class="block">
+                                {project.data.title}
+                            </a>
+                        </h2>
+                        
+                        <p class="text-lg opacity-80 leading-relaxed max-w-sm">
+                            {project.data.description}
+                        </p>
+
+                        <div class="border-t border-[var(--grid-line)] pt-6 mt-2 grid grid-cols-2 gap-4 font-mono text-xs">
+                            <div>
+                                <span class="block opacity-40 uppercase tracking-widest mb-1">Role</span>
+                                {project.data.role}
+                            </div>
+                            <div>
+                                <span class="block opacity-40 uppercase tracking-widest mb-1">Outcome</span>
+                                <span class="text-[var(--accent)]">{project.data.outcome}</span>
+                            </div>
+                        </div>
+
+                         <a href={`/works/${project.id}`} class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
+                            View Case Study <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                        </a>
+                    </div>
+
+                    <!-- 2. Visual (Right) -->
+                    <div class="md:col-span-8 relative">
+                         <a href={`/works/${project.id}`} class="block overflow-hidden rounded-[var(--radius-lg)] shadow-[var(--shadow-warm)] group-hover:shadow-lg transition-all duration-500">
+                             <div class="aspect-[16/10] bg-gray-100 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-neutral-200 animate-pulse"></div>
+                                {project.data.heroImage && (
+                                    <img 
+                                        src={project.data.heroImage} 
+                                        alt={project.data.title}
+                                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:sepia-0"
+                                        style="filter: sepia(15%);"
+                                    />
+                                )}
+                             </div>
+                         </a>
+                    </div>
+
+                </article>
+            ))}
+        </section>
+
+    </main>
+
+    <Footer />
+</BaseLayout>

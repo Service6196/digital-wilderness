@@ -1,0 +1,161 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Footer from '../components/Footer.astro';
+import TangibleBook from '../components/stack/TangibleBook.astro';
+import { getCollection } from 'astro:content';
+
+const stackItems = await getCollection('stack');
+
+// Filter Books Only
+const allBooks = stackItems.filter(item => item.data.type === 'Book');
+
+// 1. On The Desk: Find book with highest progress (but < 100) or just the first book
+const readingBook = allBooks.find(b => b.data.progress > 0 && b.data.progress < 100) || allBooks[0];
+
+// 2. Collection: All books (for now, or subset)
+const collectionBooks = allBooks;
+
+// 3. Archive: All books (or filtered by read status if we had it)
+const archiveBooks = allBooks;
+---
+
+<BaseLayout title="The Library | Digital Wilderness">
+    
+    <main class="min-h-screen pt-32 px-[max(5vw,20px)]">
+        
+        <header class="mb-24 max-w-2xl">
+            <h1 class="font-serif text-[clamp(3.5rem,8vw,5rem)] leading-none italic text-[var(--text)] mb-6">
+                The Library
+            </h1>
+            <p class="font-sans text-lg text-[var(--text-secondary)] leading-relaxed opacity-80">
+                The Reader's Sanctuary.
+                <br class="hidden md:block" />
+                Physical & Digital Collections.
+            </p>
+            <p class="mt-4 font-serif text-sm text-[var(--text-muted)] italic">
+                阅读者的避难所
+            </p>
+        </header>
+
+        <!-- QUOTES Section Removed -->
+
+
+        <!-- NEW The Library Layout -->
+        <section class="mb-32">
+            
+            <!-- 1. On The Desk (Currently Reading) -->
+            <!-- Metaphor: 'The Reader's Sanctuary' - A single focused item with high detail -->
+            {readingBook && (
+                <div class="mb-32 flex flex-col items-center">
+                    <div class="relative z-10">
+                        <TangibleBook 
+                            view="desk"
+                            title={readingBook.data.name}
+                            author="" 
+                            cover={readingBook.data.cover || ""} 
+                            progress={readingBook.data.progress}
+                            comment={readingBook.data.comment /* Used as handwritten note */}
+                            href={readingBook.data.link}
+                        />
+                    </div>
+                    
+                    <!-- Desk Surface Shadow/Reflection Simulation -->
+                    <div class="w-[200px] h-4 bg-[var(--text)]/10 blur-xl rounded-[100%] mt-8 transform scale-x-150"></div>
+
+                    <div class="mt-12 text-center max-w-md">
+                        <h3 class="font-mono text-xs uppercase tracking-widest text-[var(--accent)] mb-2">Currently on the desk</h3>
+                        <p class="font-serif italic text-xl text-[var(--text-secondary)]">
+                            "Deep reading is a way of reclaiming our own time."
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <!-- 2. The Collection (Face-out Gallery) -->
+            <div class="mb-32">
+                <header class="mb-12 flex items-baseline justify-between border-b border-[var(--grid-line)] pb-4">
+                    <h3 class="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)]">The Collection</h3>
+                    <span class="font-mono text-[10px] text-[var(--text-muted)] opacity-50">CURATED SELECTION</span>
+                </header>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-16 auto-rows-fr">
+                    {collectionBooks.map((item, index) => {
+                        // Bento Logic: Every 5th item spans 2 columns (just a simple pattern)
+                        const isFeatured = index % 5 === 0;
+                        const spanClass = isFeatured ? 'md:col-span-2' : 'col-span-1';
+                        
+                        return (
+                            <div class={`${spanClass} flex justify-center`}>
+                                <TangibleBook 
+                                    view="face-out"
+                                    title={item.data.name}
+                                    author=""
+                                    cover={item.data.cover || ""}
+                                    comment={item.data.comment}
+                                    href={item.data.link}
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <!-- 3. The Archive (Spine View) -->
+            <div>
+                 <header class="mb-8 flex items-baseline justify-between border-b border-[var(--grid-line)] pb-4">
+                    <h3 class="font-mono text-xs uppercase tracking-widest text-[var(--text-muted)]">The Archive</h3>
+                    <span class="font-mono text-[10px] text-[var(--text-muted)] opacity-50">{archiveBooks.length} VOLUMES</span>
+                </header>
+
+                <div class="relative w-full overflow-hidden">
+                    {/* Shelf Shadow */}
+                    <div class="absolute bottom-0 left-0 w-full h-2 bg-black/5 blur-sm z-10 pointer-events-none"></div>
+                    
+                    <div class="spine-shelf flex items-end overflow-x-auto pb-4 pt-12 pl-4 pr-12 min-h-[220px]">
+                        {archiveBooks.map((item, i) => {
+                            // Visual Noise Generation
+                            // Calculate random-ish but deterministic values based on index to avoid hydration mismatch if possible
+                            // But since this is static build, Math.random() is fine for build-time generation
+                            // height variation: 0-20px
+                            // margin-top: 0-10px (alignment)
+                            const noiseH = (i * 13 % 20) + 'px'; 
+                            const noiseM = (i * 7 % 10) + 'px';
+                            
+                            return (
+                                <div style={`--noise-h: ${noiseH}; --noise-m: ${noiseM};`}>
+                                    <TangibleBook 
+                                        view="spine"
+                                        title={item.data.name}
+                                        author=""
+                                        cover="" 
+                                        color={item.data.spineColor || `hsl(${30 + (i * 15) % 40}, ${30 + (i * 5) % 20}%, ${30 + (i * 10) % 30}%)`} // Brown/paper tones
+                                        href={item.data.link}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {/* Wood shelf texture */}
+                    <div class="h-4 w-full bg-[#3d342b] relative z-20 shadow-inner"></div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <Footer />
+</BaseLayout>
+
+<script>
+    import { createIcons, Globe, Keyboard, Box, Figma, Book } from 'lucide';
+    
+    function init() {
+        createIcons({
+            icons: { Globe, Keyboard, Box, Figma, Book }
+        });
+    }
+
+    init();
+    document.addEventListener('astro:page-load', init);
+</script>

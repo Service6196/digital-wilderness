@@ -1,0 +1,84 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="关于 | Digital Wilderness">
+    
+    <main class="pt-[100px] md:pt-[160px] px-[4vw] max-w-full overflow-x-hidden">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-24 border-b border-[var(--grid-line)] pb-6 md:pb-8">
+            <h1 class="text-[clamp(2rem,6vw,5rem)] leading-none font-bold tracking-tighter">
+                关于 <span class="text-base md:text-3xl font-light opacity-40 ml-2 md:ml-4 font-sans">/ ABOUT</span>
+            </h1>
+        </div>
+
+        <div class="flex flex-col md:grid md:grid-cols-12 gap-8 md:gap-12 max-w-full">
+            <!-- Left: Profile & Quick Info -->
+            <div class="w-full md:col-span-4">
+                <div class="md:sticky md:top-32">
+                    <div class="aspect-square bg-gray-200 overflow-hidden mb-6 md:mb-8 border border-[var(--grid-line)] max-w-[280px] md:max-w-none mx-auto md:mx-0">
+                        <img src="https://picsum.photos/seed/avatar/800/800" class="w-full h-full object-cover grayscale" alt="Profile" />
+                    </div>
+                    
+                    <div class="mb-8 md:mb-12 text-center md:text-left">
+                        <h2 class="text-xl md:text-2xl font-bold mb-2">Digital Wilderness</h2>
+                        <p class="font-mono text-xs md:text-sm opacity-60">Full Stack Designer & Developer</p>
+                    </div>
+
+                    <div class="space-y-3 md:space-y-4 font-mono text-xs md:text-sm">
+                        <div class="flex justify-between border-b border-[var(--grid-line)] pb-2">
+                            <span class="opacity-50">Location</span>
+                            <span>Digital Wilderness</span>
+                        </div>
+                        <div class="flex justify-between border-b border-[var(--grid-line)] pb-2">
+                            <span class="opacity-50">Status</span>
+                            <span class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                Online
+                            </span>
+                        </div>
+                         <div class="flex justify-between border-b border-[var(--grid-line)] pb-2">
+                            <span class="opacity-50">Email</span>
+                            <a href="mailto:hello@theframe.design" class="hover:text-[var(--accent)] truncate ml-2">hello@theframe.design</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Content -->
+            <div class="w-full md:col-span-7 md:col-start-6 prose prose-base md:prose-lg prose-neutral dark:prose-invert max-w-full">
+                <h3 class="font-bold text-xl md:text-3xl mb-6 md:mb-8 tracking-tight">你好，欢迎来到我的小角落。</h3>
+                
+                <p class="text-base md:text-lg opacity-80 mb-8 md:mb-12 leading-relaxed">
+                    这里是我记录想法、分享作品的地方。我喜欢把复杂的东西变简单，把无聊的东西变有趣。如果你也对设计、代码或者生活中的小发现感兴趣，那我们可能会聊得来。
+                </p>
+
+                <hr class="border-[var(--grid-line)] my-8 md:my-12" />
+
+                <div class="mb-12 md:mb-16">
+                    <h4 class="font-mono text-xs md:text-sm uppercase tracking-widest opacity-50 mb-4 md:mb-6">01 / 我在想什么</h4>
+                    <p class="mb-4 md:mb-6 text-sm md:text-base">
+                        我相信<strong>时间是最宝贵的</strong>。既然我们的时间有限，那就应该做些有意义的事情。这个网站就是我尝试留下一点痕迹的方式——记录我学到的东西，分享我觉得有趣的想法。
+                    </p>
+                    <p class="text-sm md:text-base">
+                        我也相信<strong>连接的力量</strong>。虽然我们隔着屏幕，但通过文字和作品，我们其实可以产生真正的交流。希望这里的内容能给你一点启发，或者至少，让你觉得不虚此行。
+                    </p>
+                </div>
+
+                <div class="mb-12 md:mb-16">
+                    <h4 class="font-mono text-xs md:text-sm uppercase tracking-widest opacity-50 mb-4 md:mb-6">02 / 我会什么</h4>
+                    <p class="mb-4 md:mb-6 text-sm md:text-base">
+                        我平时主要做<strong>网页设计和开发</strong>。简单来说就是：把想法变成你现在看到的这种网页。我喜欢干净、简洁的风格，不喜欢花里胡哨。
+                    </p>
+                    <ul class="list-disc pl-5 space-y-2 opacity-80 marker:text-[var(--accent)] text-sm md:text-base">
+                        <li><strong>设计工具:</strong> Figma, Photoshop</li>
+                        <li><strong>写代码:</strong> HTML, CSS, JavaScript, React</li>
+                        <li><strong>建网站:</strong> Astro（就是这个网站用的）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <Footer />
+</BaseLayout>

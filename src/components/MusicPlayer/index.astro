@@ -1,0 +1,1024 @@
+﻿---
+---
+
+<!-- Unified Music Capsule (toggles between icon-only and full capsule) -->
+<div class="music-component" data-astro-transition-persist="music-player">
+    <!-- Unified Capsule: [Cover] + [Lyrics] + [Icon] -->
+    <div id="music-capsule" class="music-capsule">
+        <img id="mini-cover" class="capsule-cover" src="" alt="" />
+        <div class="capsule-info">
+            <span id="mini-lyric" class="capsule-lyric">--</span>
+        </div>
+        <button id="music-toggle" class="capsule-toggle" aria-label="Toggle Music Player">
+            <img src="/images/music-icon.png" alt="Music" class="w-6 h-6 object-contain" />
+        </button>
+    </div>
+
+    <!-- Player Panel -->
+    <div id="music-panel" class="music-panel">
+        <div class="panel-header">
+            <span class="panel-title">正在播放</span>
+            <div class="search-box">
+                <input type="text" id="music-search" placeholder="搜索音乐..." />
+            </div>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn" data-mode="japanese">日系</button>
+            <button class="mode-btn" data-mode="chinese-hot">热歌</button>
+            <button class="mode-btn" data-mode="reading">专注</button>
+        </div>
+
+        <div id="search-results" class="search-results"></div>
+
+        <div class="now-playing">
+            <div class="cover-art">
+                <img id="cover-img" src="" alt="Cover" />
+            </div>
+            <div class="track-info">
+                <p id="track-title" class="track-title">--</p>
+                <p id="track-artist" class="track-artist">--</p>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <span id="current-time" class="time">0:00</span>
+            <input type="range" id="progress-bar" class="progress-bar" value="0" min="0" max="100" />
+            <span id="duration" class="time">0:00</span>
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn" class="control-btn" aria-label="Previous">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+            <button id="play-btn" class="control-btn play-btn" aria-label="Play">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            </button>
+            <button id="next-btn" class="control-btn" aria-label="Next">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+        </div>
+
+        <div id="lyrics-container" class="lyrics-container">
+            <p id="lyrics-text" class="lyrics-text"></p>
+        </div>
+    </div>
+
+    <audio id="audio-player" preload="metadata"></audio>
+</div>
+
+<style>
+    .music-component {
+        position: fixed;
+        inset: auto;
+        bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+        right: calc(24px + env(safe-area-inset-right, 0px));
+        z-index: 1200;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+        pointer-events: none;
+        /* Removed transform: translate3d(0, 0, 0) as it creates a containing block 
+           that breaks position: fixed on child elements */
+    }
+
+    .music-capsule,
+    .music-panel {
+        pointer-events: auto;
+    }
+
+    /* Unified Music Capsule */
+    .music-capsule {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px;
+        padding-right: 6px;
+        background: var(--surface);
+        border: 1px solid var(--grid-line);
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        backdrop-filter: blur(12px);
+        overflow: hidden;
+    }
+
+    .music-capsule:hover {
+        box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+    }
+
+    /* Cover (hidden by default, shown when playing) */
+    .capsule-cover {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .capsule-cover.loaded {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .music-capsule.playing .capsule-cover {
+        animation: spin 8s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Info (hidden by default, shown when playing) */
+    .capsule-info {
+        max-width: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .music-capsule.expanded .capsule-info {
+        max-width: 160px;
+        opacity: 1;
+    }
+
+    .capsule-lyric {
+        font-family: var(--font-serif);
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        color: var(--text);
+        padding-right: 4px;
+    }
+
+    /* Toggle Icon (always visible) */
+    .capsule-toggle {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 50%;
+        background: var(--grid-line);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        color: var(--text);
+    }
+
+    .capsule-toggle:hover {
+        background: var(--text);
+        color: var(--bg);
+    }
+
+    /* Music Panel - Desktop: fixed positioning, Mobile: absolute for proper overflow control */
+    .music-panel {
+        /* Desktop default */
+        position: fixed;
+        bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+        right: calc(24px + env(safe-area-inset-right, 0px));
+        width: 320px;
+        max-height: 70vh;
+        background: var(--surface);
+        border: 1px solid var(--grid-line);
+        border-radius: 16px;
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px) scale(0.98);
+        transform-origin: bottom right;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+        overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        backdrop-filter: blur(20px);
+        z-index: 1201;
+    }
+
+    .music-panel.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .panel-title {
+        font-family: var(--font-serif);
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        opacity: 0.6;
+        color: var(--text);
+    }
+
+    .search-box input {
+        background: var(--grid-line);
+        border: none;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        width: 120px;
+        transition: width 0.3s;
+        color: var(--text);
+    }
+
+    .search-box input:focus {
+        outline: none;
+        width: 160px;
+        background: rgba(0,0,0,0.08);
+    }
+
+    .now-playing {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .cover-art {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--grid-line);
+        flex-shrink: 0;
+    }
+
+    .cover-art img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .cover-art img.loaded {
+        opacity: 1;
+    }
+
+    .track-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .track-title {
+        font-family: var(--font-serif);
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text);
+    }
+
+    .track-artist {
+        font-size: 12px;
+        opacity: 0.6;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text);
+    }
+</style>
+
+<style is:global>
+    .mode-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+    
+    .mode-selector::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mode-btn {
+        flex: 1;
+        white-space: nowrap;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--grid-line);
+        border: none;
+        font-size: 11px;
+        color: var(--text);
+        cursor: pointer;
+        opacity: 0.7;
+        transition: all 0.2s;
+    }
+
+    .mode-btn:hover, .mode-btn.active {
+        background: var(--text);
+        color: var(--bg);
+        opacity: 1;
+    }
+
+    /* Search Results */
+    #music-panel .search-results {
+        max-height: 280px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    #music-panel .search-results.active {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #music-panel .search-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        background: var(--bg);
+        border: 1px solid var(--grid-line);
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    #music-panel .search-item:hover {
+        background: var(--grid-line);
+    }
+
+    #music-panel .search-item-thumb {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: var(--grid-line);
+    }
+
+    #music-panel .search-item-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    #music-panel .search-item-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    #music-panel .search-item-title {
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #music-panel .search-item-artist {
+        font-size: 10px;
+        opacity: 0.6;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Source Badge */
+    #music-panel .source-badge {
+        flex-shrink: 0;
+        padding: 3px 8px;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        border-radius: 9999px;
+        background: var(--grid-line);
+        color: var(--text);
+        opacity: 0.7;
+        text-transform: uppercase;
+    }
+
+    #music-panel .source-badge.netease {
+        background: #e60026;
+        color: #fff;
+        opacity: 1;
+    }
+
+    #music-panel .source-badge.qq {
+        background: #12b7f5;
+        color: #fff;
+        opacity: 1;
+    }
+
+    #music-panel .source-badge.kuwo {
+        background: #ff6600;
+        color: #fff;
+        opacity: 1;
+    }
+
+    .progress-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .time {
+        font-size: 10px;
+        font-family: monospace;
+        opacity: 0.5;
+        min-width: 32px;
+    }
+
+    .progress-bar {
+        flex: 1;
+        height: 4px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: var(--grid-line);
+        border-radius: 2px;
+        cursor: pointer;
+    }
+
+    .progress-bar::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 12px;
+        height: 12px;
+        background: var(--text);
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .control-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s, transform 0.2s;
+        padding: 8px;
+        color: var(--text);
+    }
+
+    .control-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .play-btn {
+        width: 48px;
+        height: 48px;
+        background: var(--text);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+        color: var(--bg);
+    }
+
+    .lyrics-container {
+        max-height: 80px;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .lyrics-text {
+        font-size: 13px;
+        line-height: 1.6;
+        opacity: 0.7;
+        font-style: italic;
+    }
+    /* ========================================
+       MOBILE STYLES - Complete Refactor
+       Strategy: Panel uses FIXED positioning
+       LEFT edge starts from screen left margin
+       RIGHT edge stops before the toggle button area
+       Panel never overflows right side of screen
+       ======================================== */
+    @media (max-width: 640px) {
+        .music-component {
+            position: fixed;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            right: calc(16px + env(safe-area-inset-right, 0px));
+            z-index: 1200;
+        }
+
+        .music-capsule {
+            padding: 4px;
+        }
+
+        .capsule-toggle {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+        }
+
+        .capsule-cover {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+        }
+
+        .capsule-info {
+            max-width: 0;
+        }
+
+        .music-capsule.expanded .capsule-info {
+            max-width: 140px;
+        }
+
+        /* PANEL: Fixed positioning, left-aligned, expands towards toggle button */
+        .music-panel {
+            position: fixed !important;
+            /* Bottom: above the toggle button */
+            bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+            /* LEFT edge: small margin from screen left */
+            left: 12px !important;
+            /* RIGHT edge: leave room for toggle button (button width + margin + gap) */
+            right: calc(60px + env(safe-area-inset-right, 0px)) !important;
+            /* Let width be auto-calculated from left/right */
+            width: auto !important;
+            max-width: 320px;
+            max-height: 60vh;
+            padding: 16px;
+            border-radius: 12px;
+            /* Animation from bottom left */
+            transform-origin: bottom left;
+        }
+
+        .panel-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            font-size: 16px; /* Prevents iOS Safari auto-zoom on focus */
+        }
+
+        .search-box input:focus {
+            width: 100%;
+        }
+
+        .now-playing {
+            gap: 10px;
+        }
+
+        .cover-art {
+            width: 56px;
+            height: 56px;
+        }
+
+        .track-title {
+            font-size: 14px;
+        }
+
+        .track-artist {
+            font-size: 11px;
+        }
+    }
+
+    /* Extra small screens (< 420px) */
+    @media (max-width: 420px) {
+        .music-component {
+            right: calc(12px + env(safe-area-inset-right, 0px));
+            bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        }
+
+        .music-panel {
+            bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+            left: 8px !important;
+            right: calc(52px + env(safe-area-inset-right, 0px)) !important;
+            max-width: none;
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .now-playing {
+            gap: 8px;
+        }
+
+        .cover-art {
+            width: 48px;
+            height: 48px;
+        }
+
+        .control-btn {
+            padding: 6px;
+        }
+
+        .play-btn {
+            width: 44px;
+            height: 44px;
+        }
+
+        .music-capsule.expanded .capsule-info {
+            max-width: 100px;
+        }
+
+        .controls {
+            gap: 12px;
+        }
+
+        .lyrics-container {
+            max-height: 60px;
+        }
+
+        .lyrics-text {
+            font-size: 12px;
+        }
+    }
+</style>
+
+<script>
+    import { formatTime } from './utils';
+    import { searchMusic, getSongUrl, getLyrics, getHotMix, getModePlaylist } from './services';
+    import type { Song, LyricLine } from './types';
+
+    const DEFAULT_KEYWORD = '周杰伦';
+    const STORAGE_KEY = 'music-player-state';
+
+    function initMusicPlayer() {
+        const toggle = document.getElementById('music-toggle');
+        const panel = document.getElementById('music-panel');
+        const audio = document.getElementById('audio-player') as HTMLAudioElement;
+        const searchInput = document.getElementById('music-search') as HTMLInputElement;
+        const searchResults = document.getElementById('search-results');
+        const coverEl = document.getElementById('cover-img') as HTMLImageElement;
+        const titleEl = document.getElementById('track-title');
+        const artistEl = document.getElementById('track-artist');
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar') as HTMLInputElement;
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        const lyricsText = document.getElementById('lyrics-text');
+        // New unified capsule
+        const musicCapsule = document.getElementById('music-capsule');
+        const capsuleCover = document.getElementById('mini-cover') as HTMLImageElement;
+        const capsuleLyric = document.getElementById('mini-lyric');
+
+        if (!toggle || !panel || !audio || !musicCapsule) return;
+        if (toggle.hasAttribute('data-music-init')) return;
+        toggle.setAttribute('data-music-init', 'true');
+
+        let playlist: Song[] = [];
+        let currentIndex = 0;
+        let isPlaying = false;
+        let lyrics: LyricLine[] = [];
+        let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+        let currentLyricIndex = -1;
+        let currentLyricText = '';
+        let restoredFromState = false;
+
+        audio.preload = 'metadata';
+
+        const updateCover = (el: HTMLImageElement | null, src?: string) => {
+            if (!el) return;
+            if (src) {
+                el.src = src;
+                el.classList.add('loaded');
+            } else {
+                el.classList.remove('loaded');
+            }
+        };
+
+        const persistState = (partial: Record<string, any> = {}) => {
+            try {
+                const snapshot = { playlist, currentIndex, isPlaying, ...partial };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+            } catch (err) {
+                console.warn('Persist state failed', err);
+            }
+        };
+
+        // Mode Switching
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const target = e.currentTarget as HTMLElement;
+                const mode = target.getAttribute('data-mode');
+                if (!mode) return;
+
+                // UI feedback
+                modeBtns.forEach(b => b.classList.remove('active'));
+                target.classList.add('active');
+                if (titleEl) titleEl.textContent = '加载中...';
+                if (artistEl) artistEl.textContent = 'Switching Mode...';
+
+                try {
+                    const songs = await getModePlaylist(mode);
+                    if (songs.length > 0) {
+                        playlist = songs;
+                        currentIndex = 0;
+                        playSong(playlist[0], true);
+                    } else {
+                        if (titleEl) titleEl.textContent = '未找到内容';
+                    }
+                } catch (err) {
+                    console.error('Mode switch failed', err);
+                    if (titleEl) titleEl.textContent = '加载失败';
+                }
+            });
+        });
+
+        // Update capsule expansion state
+        const updateCapsuleState = () => {
+            if (!musicCapsule) return;
+            // Expand capsule when playing and panel is closed
+            const shouldExpand = isPlaying && !panel.classList.contains('active');
+            musicCapsule.classList.toggle('expanded', shouldExpand);
+            musicCapsule.classList.toggle('playing', isPlaying);
+        };
+
+        const forceCapsuleIfPlaying = () => {
+            panel.classList.remove('active');
+            searchResults?.classList.remove('active');
+            updateCapsuleState();
+        };
+
+        const hydrateFromStorage = async () => {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                if (!data) return;
+
+                if (Array.isArray(data.playlist) && data.playlist.length > 0) {
+                    playlist = data.playlist;
+                    currentIndex = data.currentIndex || 0;
+                }
+
+                const song: Song | undefined = playlist[currentIndex] || data.song;
+                const url: string | undefined = data.url;
+
+                if (song && url) {
+                    restoredFromState = true;
+                    if (titleEl) titleEl.textContent = song.name || '--';
+                    if (artistEl) artistEl.textContent = song.artist || (song.artists?.join(', ')) || '--';
+                    updateCover(coverEl, song.pic);
+                    updateCover(capsuleCover, song.pic);
+                    fetchAndRenderLyrics(song);
+                    updateCapsuleState();
+                }
+            } catch (err) {
+                console.warn('Hydrate state failed', err);
+            }
+        };
+
+        const fetchAndRenderLyrics = async (song: Song) => {
+            lyrics = await getLyrics(song);
+            if (lyricsText && lyrics.length > 0) {
+                lyricsText.textContent = lyrics[0]?.text || '';
+            }
+        };
+
+        const playSong = async (song: Song, autoplay = true) => {
+            currentIndex = playlist.indexOf(song);
+            if (currentIndex === -1) {
+                playlist.push(song);
+                currentIndex = playlist.length - 1;
+            }
+
+            if (titleEl) titleEl.textContent = song.name || '加载中...';
+            if (artistEl) artistEl.textContent = song.artist || (song.artists?.join(', ')) || '--';
+            
+            updateCover(coverEl, song.pic);
+            updateCover(capsuleCover, song.pic);
+
+            const url = await getSongUrl(song);
+            if (url) {
+                audio.src = url;
+                persistState({ song, url, currentTime: 0 });
+                if (autoplay) {
+                    try {
+                        await audio.play();
+                    } catch (e) {
+                        console.warn('Autoplay blocked:', e);
+                    }
+                }
+            } else {
+                if (titleEl) titleEl.textContent = '无法播放';
+            }
+            fetchAndRenderLyrics(song);
+        };
+
+        const handleSearch = async (query: string, showUI = true) => {
+            if (!query.trim()) {
+                searchResults?.classList.remove('active');
+                return;
+            }
+            const results = await searchMusic(query);
+            if (results.length > 0) {
+                playlist = results;
+                if (showUI) renderResults(results);
+            } else if (showUI && searchResults) {
+                searchResults.innerHTML = '<div class="search-item" style="padding:10px;">未找到结果</div>';
+                searchResults.classList.add('active');
+            }
+        };
+
+        function renderResults(data: Song[]) {
+            if (!searchResults) return;
+            
+            searchResults.innerHTML = data.map((song, i) => `
+                <div class="search-item" data-idx="${i}">
+                    <div class="search-item-thumb">
+                        ${song.pic 
+                            ? `<img src="${song.pic}" alt="" loading="lazy"/>` 
+                            : ''}
+                    </div>
+                    <div class="search-item-info">
+                        <p class="search-item-title">${song.name}</p>
+                        <p class="search-item-artist">${song.artist || song.artists?.join(', ') || '--'}</p>
+                    </div>
+                    <div class="source-badge ${song.source || ''}">
+                        ${song.source === 'netease' ? '网易' : 
+                          song.source === 'qq' ? 'QQ' : 
+                          song.source === 'kuwo' ? '酷我' : '--'}
+                    </div>
+                </div>
+            `).join('');
+            
+            searchResults.classList.add('active');
+
+            searchResults.querySelectorAll('.search-item').forEach((item) => {
+                item.addEventListener('click', () => {
+                    const idx = parseInt(item.getAttribute('data-idx') || '0', 10);
+                    if (playlist[idx]) {
+                        playSong(playlist[idx], true);
+                        searchResults?.classList.remove('active');
+                        if (searchInput) searchInput.value = '';
+                    }
+                });
+            });
+        }
+
+        const restorePromise = hydrateFromStorage();
+
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panel.classList.toggle('active');
+            if (panel.classList.contains('active')) {
+                musicCapsule?.classList.remove('expanded');
+            } else {
+                 searchResults?.classList.remove('active');
+                 updateCapsuleState();
+            }
+        });
+
+        // Capsule info area click opens panel
+        musicCapsule?.querySelector('.capsule-info')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panel.classList.add('active');
+            musicCapsule?.classList.remove('expanded');
+        });
+
+        document.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
+            if (!target.closest('.music-component')) {
+                forceCapsuleIfPlaying();
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            if (isPlaying) {
+                forceCapsuleIfPlaying();
+            }
+        }, { passive: true });
+
+        searchInput?.addEventListener('input', (e) => {
+            const query = (e.target as HTMLInputElement).value;
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                handleSearch(query, true);
+            }, 500);
+        });
+
+        playBtn?.addEventListener('click', () => {
+            // If no source yet but we have tracks, start the current/first song
+            if (!audio.src && playlist.length > 0) {
+                const startIdx = currentIndex < playlist.length ? currentIndex : 0;
+                playSong(playlist[startIdx], true);
+                return;
+            }
+            if (audio.paused) audio.play().catch(console.warn);
+            else audio.pause();
+        });
+
+        const updatePlayIcon = () => {
+             if (isPlaying) {
+                playBtn!.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><rect width="4" height="16" x="6" y="4"/><rect width="4" height="16" x="14" y="4"/></svg>`;
+                musicCapsule?.classList.add('playing');
+            } else {
+                playBtn!.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg>`;
+                musicCapsule?.classList.remove('playing');
+            }
+            updateCapsuleState();
+        };
+
+        const playNext = () => {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex + 1) % playlist.length;
+            playSong(playlist[currentIndex], true);
+        };
+
+        const playPrev = () => {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+            playSong(playlist[currentIndex], true);
+        };
+
+        prevBtn?.addEventListener('click', playPrev);
+        nextBtn?.addEventListener('click', playNext);
+
+        audio.addEventListener('play', () => { 
+            isPlaying = true; 
+            updatePlayIcon(); 
+            persistState({ isPlaying: true, song: playlist[currentIndex], url: audio.src, currentTime: audio.currentTime });
+        });
+        audio.addEventListener('pause', () => { 
+            isPlaying = false; 
+            updatePlayIcon(); 
+            persistState({ isPlaying: false, song: playlist[currentIndex], url: audio.src, currentTime: audio.currentTime });
+        });
+        audio.addEventListener('ended', playNext);
+        audio.addEventListener('timeupdate', () => {
+            const time = audio.currentTime;
+            const duration = audio.duration;
+            if (currentTimeEl) currentTimeEl.textContent = formatTime(time);
+            if (durationEl && !isNaN(duration)) durationEl.textContent = formatTime(duration);
+            if (progressBar && !isNaN(duration)) progressBar.value = String((time / duration) * 100);
+
+            for (let i = lyrics.length - 1; i >= 0; i--) {
+                if (time >= lyrics[i].time) {
+                    if (currentLyricIndex !== i) {
+                        currentLyricIndex = i;
+                        currentLyricText = lyrics[i].text;
+                        if (lyricsText) lyricsText.textContent = currentLyricText;
+                        if (capsuleLyric) capsuleLyric.textContent = currentLyricText;
+                    }
+                    break;
+                }
+            }
+        });
+
+        progressBar?.addEventListener('input', () => {
+            const val = parseFloat(progressBar.value);
+            if (!isNaN(audio.duration)) audio.currentTime = (val / 100) * audio.duration;
+        });
+
+        restorePromise.finally(() => {
+            if (!restoredFromState) {
+                // Auto-play Japanese music by default
+                getModePlaylist('japanese').then((songs) => {
+                    if (songs.length > 0) {
+                        playlist = songs;
+                        // Highlight the Japanese mode button
+                        document.querySelector('.mode-btn[data-mode="japanese"]')?.classList.add('active');
+                        playSong(playlist[0], true);
+                    } else {
+                        // Fallback to default keyword
+                        handleSearch(DEFAULT_KEYWORD, false).then(() => {
+                            if (playlist.length > 0) playSong(playlist[0], true);
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMusicPlayer);
+    } else {
+        initMusicPlayer();
+    }
+    document.addEventListener('astro:page-load', initMusicPlayer);
+</script>

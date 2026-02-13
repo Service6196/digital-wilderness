@@ -1,0 +1,256 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Footer from '../components/Footer.astro';
+import JournalItem from '../components/JournalItem.astro';
+import JournalTextureCard from '../components/JournalTextureCard.astro';
+import { getCollection } from 'astro:content';
+
+// 从 Content Collections 获取所有文章
+const allPosts = await getCollection('posts', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+// 按发布日期倒序排列
+const sortedPosts = allPosts.sort((a, b) => 
+    b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+// 获取所有分类
+const categories = [...new Set(sortedPosts.map(post => post.data.category).filter(Boolean))];
+
+// 定义 span 模式（循环使用）
+const spanPatterns = [
+    "col-span-12 md:col-span-8",
+    "col-span-12 md:col-span-4", 
+    "col-span-12 md:col-span-4",
+    "col-span-12 md:col-span-8",
+    "col-span-12"
+];
+---
+
+<BaseLayout title="Thinking | Digital Wilderness">
+    
+    <main class="min-h-screen pt-12">
+        <!-- Header Section: Rhythm (Header -> 6rem -> Title) -->
+        <header class="px-[4vw] mt-24 mb-32">
+            <h1 class="font-serif text-[clamp(3.5rem,10vw,6rem)] leading-[1.1] tracking-[-0.03em] text-[var(--text)] italic">
+                Thinking
+                <span class="block text-xl md:text-2xl font-mono not-italic mt-4 text-[var(--text-muted)] tracking-widest normal-case">
+                    思考 & ARCHIVES
+                </span>
+            </h1>
+        </header>
+
+        <!-- Content Grid: Asymmetrical 1:2 -->
+        <section class="px-[4vw] mb-32">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
+                <!-- Left Column: Sticky Filters -->
+                <div class="col-span-1 hidden md:block">
+                    <div class="sticky top-32">
+                        <h2 class="font-serif text-2xl italic text-[var(--text)] mb-8">Categories</h2>
+                        <div class="flex flex-col gap-4 font-mono text-xs tracking-[0.15em] text-[var(--text-secondary)]" id="category-filter-desktop">
+                             <button class="filter-btn active text-left hover:text-[var(--text)] transition-colors uppercase" data-category="all">
+                                All / {sortedPosts.length}
+                             </button>
+                             {categories.map(cat => {
+                                const count = sortedPosts.filter(p => p.data.category === cat).length;
+                                return (
+                                    <button class="filter-btn text-left hover:text-[var(--text)] transition-colors uppercase opacity-60 hover:opacity-100" data-category={cat}>
+                                        {cat} / {count}
+                                    </button>
+                                );
+                             })}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Filters -->
+                <div class="col-span-1 md:hidden mb-8">
+                    <div class="flex flex-wrap gap-2 font-mono text-xs uppercase" id="category-filter-mobile">
+                        <button class="filter-btn active px-3 py-1 border border-[#DCDCDC] rounded-full" data-category="all">All</button>
+                        {categories.map(cat => (
+                            <button class="filter-btn px-3 py-1 border border-[#DCDCDC] rounded-full opacity-60" data-category={cat}>{cat}</button>
+                        ))}
+                    </div>
+                </div>
+
+                <!-- Right Column: Content List -->
+                <div class="col-span-1 md:col-span-2 flex flex-col gap-16" id="posts-grid">
+                    {sortedPosts.length > 0 ? (
+                        sortedPosts.map((post, index) => {
+                            const FALLBACK_IMAGES = [
+                                '/images/hero-desk.png', 
+                                '/images/hero-city.png', 
+                                '/images/hero-room.png'
+                            ];
+                            const fallbackImage = FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+                            
+                            return (
+                                <div 
+                                    class="post-item w-full max-w-2xl" 
+                                    data-category={post.data.category || 'Opinion'}
+                                    data-reveal
+                                >
+                                    <JournalItem 
+                                        title={post.data.title}
+                                        category={`${post.data.category || 'Opinion'} / ${String(index + 1).padStart(2, '0')}`}
+                                        image={post.data.heroImage || fallbackImage}
+                                        href={`/journal/${post.id}`}
+                                        span="w-full"
+                                    />
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div class="py-12 opacity-50 font-mono text-sm">No journals found.</div>
+                    )}
+                    
+                    <!-- No Results -->
+                    <div id="no-results" class="hidden py-12 opacity-50 font-mono text-sm">
+                        No articles in this category. 
+                        <button class="underline show-all-btn ml-2">Show all</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <Footer />
+</BaseLayout>
+
+<style>
+    .filter-btn.active {
+        background-color: var(--text);
+        border-color: var(--text);
+        color: var(--bg);
+        opacity: 1;
+    }
+    
+    .filter-btn.active:hover {
+        color: white;
+    }
+    
+    /* 文章网格容器 */
+    #posts-grid {
+        transition: opacity 0.2s ease;
+    }
+    
+    #posts-grid.filtering {
+        opacity: 0.3;
+    }
+    
+    .post-item {
+        transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    
+    .post-item.hidden {
+        display: none;
+    }
+    
+    .post-item.fade-out {
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
+    }
+</style>
+
+<script>
+    function initFilter() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const postItems = document.querySelectorAll('.post-item');
+        const noResults = document.getElementById('no-results');
+        const postsGrid = document.getElementById('posts-grid');
+        const showAllBtns = document.querySelectorAll('.show-all-btn');
+        
+        // Get categories from buttons (deduplicated)
+        const categories = [...new Set([...filterBtns].map(btn => btn.getAttribute('data-category')).filter(c => c && c !== 'all'))];
+
+        function filterPosts(category) {
+            // Apply filtering class for transition
+            postsGrid?.classList.add('opacity-50', 'transition-opacity', 'duration-200');
+            
+            setTimeout(() => {
+                let visibleCount = 0;
+
+                postItems.forEach((item) => {
+                    const itemCategory = item.getAttribute('data-category');
+                    // Check if category matches (handling hierarchical "Category / Sub" format if present, though data-category is simple)
+                    const matches = category === 'all' || itemCategory === category;
+
+                    if (matches) {
+                        item.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // Show/Hide No Results
+                if (visibleCount === 0) {
+                    noResults?.classList.remove('hidden');
+                } else {
+                    noResults?.classList.add('hidden');
+                }
+                
+                // Fade back in
+                requestAnimationFrame(() => {
+                    postsGrid?.classList.remove('opacity-50');
+                });
+            }, 200);
+
+            // Update Active State (Sync Desktop & Mobile)
+            filterBtns.forEach(btn => {
+                const btnCategory = btn.getAttribute('data-category');
+                if (btnCategory === category) {
+                    btn.classList.add('active', 'font-bold', 'opacity-100');
+                    btn.classList.remove('opacity-60');
+                } else {
+                    btn.classList.remove('active', 'font-bold', 'opacity-100');
+                    btn.classList.add('opacity-60');
+                }
+            });
+        }
+
+        // Clean up old listeners
+        filterBtns.forEach(btn => {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode?.replaceChild(newBtn, btn);
+        });
+
+        // Bind new listeners
+        const newFilterBtns = document.querySelectorAll('.filter-btn');
+        newFilterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const category = btn.getAttribute('data-category') || 'all';
+                filterPosts(category);
+                
+                // Update URL
+                const newUrl = category === 'all' ? '/journal' : `/journal#${category}`;
+                window.history.replaceState(null, '', newUrl);
+            });
+        });
+
+        // Bind Show All
+        showAllBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                filterPosts('all');
+            });
+        });
+
+        // Initialize from Hash
+        const hash = window.location.hash.slice(1);
+        if (hash && categories.includes(hash)) {
+            filterPosts(hash);
+        }
+    }
+
+    // Init on load and View Transitions
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFilter);
+    } else {
+        initFilter();
+    }
+    document.addEventListener('astro:page-load', initFilter);
+</script>

@@ -1,0 +1,22 @@
+﻿---
+interface Props {
+    title: string;
+    cover: string;
+    progress?: number;
+}
+
+const { title, cover, progress = 0 } = Astro.props;
+---
+<div class="book-3d-scene">
+    <div class="book-3d">
+        <div class="book-cover" style={`background-image: url(${cover})`}></div>
+        <div class="book-side"></div>
+        <div class="book-pages"></div>
+        <!-- Progress Ribbon -->
+        <div class="book-ribbon" style={`height: ${Math.max(20, (progress / 100) * 280)}px`}></div>
+    </div>
+</div>
+<div class="text-center mt-8">
+    <h3 class="font-serif italic text-lg">{title}</h3>
+    <p class="font-mono text-xs opacity-50 uppercase tracking-widest mt-2">{progress}% Read</p>
+</div>

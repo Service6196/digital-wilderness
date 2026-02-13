@@ -1,0 +1,85 @@
+﻿---
+const { headings } = Astro.props;
+---
+
+<nav class="toc hidden lg:block sticky top-32 w-64 max-h-[calc(100vh-8rem)] overflow-y-auto pr-4">
+    <div class="font-mono text-xs uppercase tracking-widest opacity-40 mb-4 pl-3">Table of Contents</div>
+    <ul class="flex flex-col gap-1 text-sm border-l border-[var(--grid-line)]">
+        {headings.map((heading) => (
+            <li class={`toc-item depth-${heading.depth}`}>
+                <a 
+                    href={`#${heading.slug}`} 
+                    class="block py-1 pl-3 border-l-2 border-transparent hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all opacity-60 hover:opacity-100"
+                    data-slug={heading.slug}
+                >
+                    {heading.text}
+                </a>
+            </li>
+        ))}
+    </ul>
+</nav>
+
+<style>
+    .depth-2 { margin-left: 0; }
+    .depth-3 { margin-left: 0.75rem; }
+    .depth-4 { margin-left: 1.5rem; }
+    
+    .toc-item a.active {
+        border-color: var(--accent);
+        color: var(--accent);
+        opacity: 1;
+        font-weight: 500;
+    }
+</style>
+
+<script>
+    function initTOC() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const id = entry.target.getAttribute('id');
+                const link = document.querySelector(`.toc-item a[href="#${id}"]`);
+                
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.toc-item a').forEach(a => a.classList.remove('active'));
+                    link?.classList.add('active');
+                }
+            });
+        }, {
+            rootMargin: '-100px 0px -66% 0px',
+            threshold: 1.0
+        });
+
+        // 观察所有标题
+        document.querySelectorAll('article h2, article h3, article h4').forEach((heading) => {
+            observer.observe(heading);
+        });
+    }
+
+    // 初始化
+    initTOC();
+    document.addEventListener('astro:page-load', initTOC);
+    
+    // 平滑滚动
+    document.querySelectorAll('.toc-item a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href');
+            const target = document.querySelector(href);
+            
+            if (target) {
+                const headerOffset = 100;
+                const elementPosition = target.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+                
+                // Manually set active state
+                document.querySelectorAll('.toc-item a').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+            }
+        });
+    });
+</script>

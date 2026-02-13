@@ -1,0 +1,51 @@
+﻿---
+interface Props {
+  title: string;
+  cover?: string;
+  rating?: string;
+  takeaway?: string;
+}
+
+const { title, cover, rating, takeaway } = Astro.props;
+
+const ratingColors = {
+  'Must Read': 'bg-[var(--accent)] text-white',
+  'Thought Provoking': 'bg-[var(--text-secondary)] text-white',
+  'Reference': 'bg-[var(--bg)] border border-[var(--text-muted)] text-[var(--text-muted)]'
+};
+
+const badgeColor = rating ? ratingColors[rating] || ratingColors['Reference'] : '';
+---
+
+<div class="book-face w-full max-w-[240px] flex flex-col gap-4 group cursor-pointer">
+  <div class="relative aspect-[2/3] w-full rounded-md shadow-md overflow-hidden transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-2">
+    <!-- Cover -->
+    {cover ? (
+      <img src={cover} alt={title} class="w-full h-full object-cover" />
+    ) : (
+      <div class="w-full h-full bg-stone-200 flex items-center justify-center p-4 text-center font-serif text-stone-500">
+        {title}
+      </div>
+    )}
+    
+    <!-- Rating Badge -->
+    {rating && (
+      <div class={`absolute top-4 right-4 px-3 py-1 text-[10px] uppercase font-mono tracking-widest rounded-full ${badgeColor}`}>
+        {rating}
+      </div>
+    )}
+    
+    <!-- Waistband (Obi) -->
+    {takeaway && (
+      <div class="absolute bottom-8 left-0 right-0 bg-white/90 backdrop-blur-sm p-3 transform translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+         <p class="font-serif italic text-sm text-[var(--text)] leading-snug">
+           "{takeaway}"
+         </p>
+      </div>
+    )}
+  </div>
+  
+  <h3 class="font-serif font-medium text-lg text-center leading-tight group-hover:text-[var(--accent)] transition-colors">
+    {title}
+  </h3>
+</div>

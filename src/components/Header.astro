@@ -1,0 +1,139 @@
+﻿---
+import MenuOverlay from './MenuOverlay.astro';
+---
+<!-- Mobile & Desktop: Full-width fixed header -->
+<!-- Mobile & Desktop: Fixed Header with SENSES Rhythm -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-[4vw] py-8 md:py-12 bg-[var(--bg)]/95 backdrop-blur-sm border-b border-[var(--grid-line)] transition-all duration-300" data-astro-transition-persist="global-header">
+    <!-- Logo: Playfair Italic 1.5rem -->
+    <div class="font-serif italic font-semibold text-2xl text-[var(--accent)] z-50 relative">
+        <a href="/">Digital Wilderness.</a>
+    </div>
+    
+    <!-- Desktop Navigation (Center) -->
+    <div class="hidden md:flex items-center gap-12 absolute left-1/2 transform -translate-x-1/2">
+        <a href="/journal" class="flex flex-col items-center group">
+            <span class="cn text-sm group-hover:text-[var(--accent)] transition-colors">思考</span>
+            <span class="en text-[0.6rem] uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-0.5">Thinking</span>
+        </a>
+        <a href="/works" class="flex flex-col items-center group">
+            <span class="cn text-sm group-hover:text-[var(--accent)] transition-colors">作品</span>
+            <span class="en text-[0.6rem] uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-0.5">Works</span>
+        </a>
+        <a href="/signals" class="flex flex-col items-center group">
+            <span class="cn text-sm group-hover:text-[var(--accent)] transition-colors">信号</span>
+            <span class="en text-[0.6rem] uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-0.5">Signals</span>
+        </a>
+        <a href="/stack" class="flex flex-col items-center group">
+            <span class="cn text-sm group-hover:text-[var(--accent)] transition-colors">工具</span>
+            <span class="en text-[0.6rem] uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-0.5">Stack</span>
+        </a>
+        <a href="/now" class="flex flex-col items-center group">
+            <span class="cn text-sm group-hover:text-[var(--accent)] transition-colors">当下</span>
+            <span class="en text-[0.6rem] uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-0.5">Now</span>
+        </a>
+        <a href="/manual" class="flex flex-col items-center group">
+            <span class="cn text-sm group-hover:text-[var(--accent)] transition-colors">了解我</span>
+            <span class="en text-[0.6rem] uppercase tracking-widest opacity-40 group-hover:opacity-100 group-hover:text-[var(--accent)] transition-all mt-0.5">About</span>
+        </a>
+    </div>
+
+    <div class="flex items-center gap-3 z-50">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="btn-icon w-9 h-9 flex items-center justify-center rounded-full hover:bg-[var(--surface)] transition-all text-[var(--text-secondary)] hover:text-[var(--text)]" aria-label="Toggle Theme">
+            <!-- Sun Icon (shown in dark mode) -->
+            <svg id="sun-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="m4.93 4.93 1.41 1.41"></path>
+                <path d="m17.66 17.66 1.41 1.41"></path>
+                <path d="M2 12h2"></path>
+                <path d="M20 12h2"></path>
+                <path d="m6.34 17.66-1.41 1.41"></path>
+                <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+            <!-- Moon Icon (shown in light mode) -->
+            <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+            </svg>
+        </button>
+
+        <!-- Search Link -->
+        <a href="/search" class="btn-icon w-9 h-9 flex items-center justify-center rounded-full hover:bg-[var(--surface)] transition-all text-[var(--text-secondary)] hover:text-[var(--text)]" aria-label="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </a>
+
+        <!-- Mobile Menu Trigger -->
+        <button id="menu-trigger" class="btn-icon w-9 h-9 flex items-center justify-center rounded-full hover:bg-[var(--surface)] transition-all text-[var(--text-secondary)] hover:text-[var(--text)] md:hidden" aria-label="Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+    </div>
+</nav>
+
+<MenuOverlay />
+
+<script>
+    function initHeader() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const menuTrigger = document.getElementById('menu-trigger');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        const html = document.documentElement;
+
+        // Menu Logic
+        if (menuTrigger && menuOverlay) {
+            menuTrigger.addEventListener('click', () => {
+                menuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; 
+            });
+        }
+        
+        // Prevent duplicate event binding
+        if (themeToggle?.hasAttribute('data-theme-initialized')) {
+            return;
+        }
+        themeToggle?.setAttribute('data-theme-initialized', 'true');
+        
+        // Get stored theme
+        const storedTheme = localStorage.getItem('theme');
+        
+        // Apply theme function
+        function applyTheme(isDark: boolean) {
+            if (isDark) {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                sunIcon?.classList.remove('hidden');
+                moonIcon?.classList.add('hidden');
+            } else {
+                html.classList.add('light');
+                html.classList.remove('dark');
+                sunIcon?.classList.add('hidden');
+                moonIcon?.classList.remove('hidden');
+            }
+        }
+        
+        // Sunset Mode Logic (SENSES v1.6)
+        // 1. Check Manual Override first
+        // 2. Fallback to Time-based (Sunset: 18:00 - 06:00)
+        const currentHour = new Date().getHours();
+        const isSunset = currentHour >= 18 || currentHour < 6;
+        
+        if (storedTheme) {
+            applyTheme(storedTheme === 'dark');
+        } else {
+            applyTheme(isSunset);
+        }
+        
+        // Toggle theme on click
+        themeToggle?.addEventListener('click', () => {
+            const isDark = html.classList.contains('dark');
+            const newTheme = !isDark;
+            
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+        });
+    }
+    
+    document.addEventListener('astro:page-load', initHeader);
+</script>

@@ -1,0 +1,27 @@
+﻿---
+import { getCollection } from 'astro:content';
+
+const works = await getCollection('works');
+const signals = await getCollection('signals');
+const stack = await getCollection('stack');
+const now = await getCollection('now');
+
+console.log('--- DATA VERIFICATION ---');
+console.log('Works:', works.length);
+console.log('Signals:', signals.length);
+console.log('Stack:', stack.length);
+console.log('Now:', now.length);
+console.log('-------------------------');
+---
+<div class="p-12 font-mono">
+    <h1>Data Verification</h1>
+    <p>Check server console for output.</p>
+    <h2>Loaded Counts:</h2>
+    <ul>
+        <li>Works: {works.length}</li>
+        <li>Signals: {signals.length}</li>
+        <li>Stack: {stack.length}</li>
+        <li>Now: {now.length}</li>
+    </ul>
+     <pre class="bg-gray-100 p-4 mt-4 rounded text-xs">{JSON.stringify({ works, signals, stack, now }, null, 2)}</pre>
+</div>

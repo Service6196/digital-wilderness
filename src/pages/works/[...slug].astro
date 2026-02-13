@@ -1,0 +1,94 @@
+---
+import { getCollection, render } from 'astro:content';
+export const prerender = true;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/Footer.astro';
+
+export async function getStaticPaths() {
+    const works = await getCollection('works');
+    return works.map(entry => ({
+        params: { slug: entry.id },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={`${entry.data.title} | Works`}>
+    
+    <main class="min-h-screen pt-32 px-[4vw]">
+        
+        <!-- Case Study Header -->
+        <header class="mb-24 md:mb-32 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
+            <div class="md:col-span-8">
+                <div class="font-mono text-xs tracking-widest uppercase text-[var(--text-muted)] mb-6">
+                    Case Study / {entry.data.pubDate.getFullYear()}
+                </div>
+                <h1 class="font-serif text-[clamp(2.5rem,6vw,4.5rem)] leading-[1.1] italic text-[var(--text)] mb-8">
+                    {entry.data.title}
+                </h1>
+                <p class="text-xl md:text-2xl leading-relaxed opacity-80 max-w-2xl">
+                    {entry.data.description}
+                </p>
+            </div>
+            
+            <div class="md:col-span-4 flex flex-col justify-end gap-8 border-l border-[var(--grid-line)] pl-8 py-2">
+                <div>
+                     <span class="block font-mono text-xs uppercase tracking-widest opacity-40 mb-2">Role</span>
+                     <span class="text-lg">{entry.data.role}</span>
+                </div>
+                <div>
+                     <span class="block font-mono text-xs uppercase tracking-widest opacity-40 mb-2">Outcome</span>
+                     <span class="text-lg text-[var(--accent)] font-serif italic">{entry.data.outcome}</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Image -->
+        {entry.data.heroImage && (
+            <div class="w-full aspect-video rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-warm)] mb-24">
+                <img 
+                    src={entry.data.heroImage} 
+                    alt={entry.data.title} 
+                    class="w-full h-full object-cover"
+                />
+            </div>
+        )}
+
+        <!-- Content Body (Asymmetric) -->
+        <article class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 mb-32">
+            <!-- Sidebar / Table of Contents / Key Stats -->
+            <div class="hidden md:block md:col-span-3">
+                <div class="sticky top-32 text-sm opacity-60 space-y-4">
+                    <p class="font-mono text-xs uppercase tracking-widest opacity-50 mb-4">Structure</p>
+                    <ul class="space-y-2 border-l border-[var(--grid-line)] pl-4">
+                        <li>The Problem</li>
+                        <li>Strategy</li>
+                        <li>Solution</li>
+                        <li>Results</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main MDX Content -->
+            <div class="md:col-span-8 md:col-start-5 prose prose-stone prose-lg max-w-none 
+                prose-headings:font-serif prose-headings:italic prose-headings:font-normal prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-8
+                prose-p:leading-loose prose-p:text-[var(--text-secondary)]
+                prose-img:rounded-[var(--radius-lg)] prose-img:shadow-[var(--shadow-warm)] prose-img:my-12">
+                <Content />
+            </div>
+        </article>
+
+        <!-- Navigation (Next Project?) -->
+        <div class="border-t border-[var(--grid-line)] pt-12 mb-24">
+            <a href="/works" class="font-mono text-xs uppercase tracking-widest hover:text-[var(--accent)] transition-colors">
+                &larr; Back to Works
+            </a>
+        </div>
+
+    </main>
+
+    <Footer />
+</BaseLayout>

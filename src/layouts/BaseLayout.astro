@@ -1,0 +1,142 @@
+﻿---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import ScrollTrace from '../components/ScrollTrace.astro';
+import MusicPlayer from '../components/MusicPlayer/index.astro';
+import CommandPalette from '../components/CommandPalette.jsx';
+import Header from '../components/Header.astro';
+
+// Music Player Configuration
+const musicConfig = {
+    api: {
+        search: '/api/music?action=search',
+        songUrl: '/api/music?action=url',
+        lyrics: '/api/music?action=lyrics',
+        hotMix: '/api/music?action=hot',
+    },
+    defaults: {
+        keyword: 'Lo-Fi',
+        mode: 'deep-work' as const,
+    },
+    ui: {
+        position: 'bottom-right' as const,
+        iconUrl: '/images/music-icon.png',
+        persist: true,
+    },
+};
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "一个关于技术、设计与哲学的非线性个人博客。" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <!-- Fonts: Playfair Display (Serif Title), Noto Serif SC (Chinese Serif), Inter (Body), IBM Plex Mono (Micro) -->
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@200;300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+		<title>{title}</title>
+		<ClientRouter />
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <style is:global>
+            /* Hide Default Scrollbar but allow scrolling */
+            body::-webkit-scrollbar {
+                width: 0px;  /* Remove scrollbar space */
+                background: transparent;  /* Optional: just make scrollbar invisible */
+            }
+        </style>
+	</head>
+	<body class="bg-[var(--bg)] text-[var(--text)] transition-colors duration-300 relative">
+        <ScrollTrace />
+        <Header />
+        <div class="fixed inset-0 z-[-1] noise-overlay pointer-events-none"></div>
+		<slot />
+        
+        <script is:inline>
+            // Sync theme from localStorage immediately (prevent flash)
+            (function() {
+                const theme = localStorage.getItem('theme');
+                const hour = new Date().getHours();
+                const isSunset = hour >= 18 || hour < 6;
+                if (theme === 'dark' || (!theme && isSunset)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.add('light');
+                }
+            })();
+            
+            // Preserve theme during View Transitions (Astro navigation)
+            document.addEventListener('astro:before-swap', (event) => {
+                const theme = localStorage.getItem('theme');
+                const hour = new Date().getHours();
+                const isSunset = hour >= 18 || hour < 6;
+                const isDark = theme === 'dark' || (!theme && isSunset);
+                
+                // Transfer theme class to new document
+                if (isDark) {
+                    event.newDocument.documentElement.classList.add('dark');
+                    event.newDocument.documentElement.classList.remove('light');
+                } else {
+                    event.newDocument.documentElement.classList.add('light');
+                    event.newDocument.documentElement.classList.remove('dark');
+                }
+            });
+        </script>       
+        <!-- Global Music Player (Floating) -->
+        <MusicPlayer config={musicConfig} />
+        
+        <script>
+            // Initialize Lucide icons on view transitions
+            import { createIcons, Search, Menu, ArrowUpRight } from 'lucide';
+            
+            function initIcons() {
+                createIcons({
+                    icons: {
+                        Search,
+                        Menu,
+                        ArrowUpRight
+                    }
+                });
+            }
+
+            initIcons();
+            document.addEventListener('astro:page-load', initIcons);
+        </script>
+
+        <!-- Global Reveal Animation (IntersectionObserver for [data-reveal]) -->
+        <script>
+            function initRevealAnimation() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.setAttribute('data-reveal', 'active');
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+            }
+
+            // Run on initial load
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initRevealAnimation);
+            } else {
+                initRevealAnimation();
+            }
+            // Re-run on Astro page transitions
+            document.addEventListener('astro:page-load', initRevealAnimation);
+        </script>
+        
+        <CommandPalette client:load />
+	</body>
+</html>

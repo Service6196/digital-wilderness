@@ -1,0 +1,27 @@
+﻿---
+interface Props {
+    title: string;
+    author?: string;
+    cover: string;
+    takeaway?: string;
+    rating?: string;
+}
+
+const { title, author, cover, takeaway, rating } = Astro.props;
+---
+<div class="book-face-out group cursor-pointer">
+    <img src={cover} alt={title} class="face-out-cover" />
+    
+    {takeaway && (
+        <div class="book-sash opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <p class="font-serif italic text-sm text-[var(--text)] leading-tight">
+                "{takeaway}"
+            </p>
+            {rating && (
+                <span class="block mt-2 font-mono text-[10px] uppercase tracking-widest text-[var(--accent)]">
+                    {rating}
+                </span>
+            )}
+        </div>
+    )}
+</div>

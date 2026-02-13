@@ -1,0 +1,205 @@
+﻿---
+/**
+ * Warmth Button - PRD Feature G
+ * "Send warmth" 按钮，点击触发萤火虫粒子动画
+ */
+---
+
+<button id="warmth-btn" class="warmth-button group">
+    <span class="warmth-text">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="inline-block mr-2">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+        </svg>
+        Send Warmth
+    </span>
+    <span class="warmth-count" id="warmth-count">0</span>
+    <canvas id="warmth-canvas" class="warmth-canvas"></canvas>
+</button>
+
+<style>
+    .warmth-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border: 1px solid var(--grid-line);
+        border-radius: 9999px;
+        background: transparent;
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: visible;
+    }
+
+    .warmth-button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .warmth-button:active {
+        transform: scale(0.98);
+    }
+
+    .warmth-text {
+        display: flex;
+        align-items: center;
+    }
+
+    .warmth-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        height: 24px;
+        padding: 0 8px;
+        background: var(--surface);
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 600;
+        opacity: 0.6;
+    }
+
+    .warmth-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 9999;
+    }
+
+    .warmth-button.pulse {
+        animation: warmth-pulse 0.6s ease-out;
+    }
+
+    @keyframes warmth-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+        100% { box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
+    }
+</style>
+
+<script>
+    interface Particle {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        life: number;
+        maxLife: number;
+        size: number;
+        hue: number;
+    }
+
+    function initWarmthButton() {
+        const btn = document.getElementById('warmth-btn');
+        const canvas = document.getElementById('warmth-canvas') as HTMLCanvasElement;
+        const countEl = document.getElementById('warmth-count');
+        
+        if (!btn || !canvas || !countEl) return;
+        if (btn.hasAttribute('data-init')) return;
+        btn.setAttribute('data-init', 'true');
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        let particles: Particle[] = [];
+        let animating = false;
+
+        const storageKey = 'warmth-count-' + window.location.pathname;
+        let count = parseInt(localStorage.getItem(storageKey) || '0', 10);
+        countEl.textContent = count.toString();
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const createParticles = (x: number, y: number) => {
+            const particleCount = 30 + Math.floor(Math.random() * 20);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
+                const velocity = 2 + Math.random() * 4;
+                
+                particles.push({
+                    x, y,
+                    vx: Math.cos(angle) * velocity,
+                    vy: Math.sin(angle) * velocity - 2,
+                    life: 1,
+                    maxLife: 60 + Math.random() * 40,
+                    size: 2 + Math.random() * 4,
+                    hue: 35 + Math.random() * 25
+                });
+            }
+        };
+
+        const animate = () => {
+            if (particles.length === 0) {
+                animating = false;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05;
+                p.vx *= 0.99;
+                p.life -= 1 / p.maxLife;
+
+                if (p.life <= 0) return false;
+
+                const alpha = p.life * 0.8;
+                const glow = p.size * 2;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, glow, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${p.hue}, 80%, 60%, ${alpha * 0.3})`;
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${p.hue}, 90%, 70%, ${alpha})`;
+                ctx.fill();
+
+                return true;
+            });
+
+            requestAnimationFrame(animate);
+        };
+
+        btn.addEventListener('click', (e) => {
+            count++;
+            countEl.textContent = count.toString();
+            localStorage.setItem(storageKey, count.toString());
+
+            btn.classList.remove('pulse');
+            void btn.offsetWidth;
+            btn.classList.add('pulse');
+
+            const rect = btn.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+
+            createParticles(x, y);
+
+            if (!animating) {
+                animating = true;
+                animate();
+            }
+        });
+    }
+
+    initWarmthButton();
+    document.addEventListener('astro:page-load', initWarmthButton);
+</script>
